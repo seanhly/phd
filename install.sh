@@ -1,3 +1,4 @@
+apt install python3
 if [ -e /usr/bin/phd ]; then
 	/usr/bin/phd run-grobid
 else
