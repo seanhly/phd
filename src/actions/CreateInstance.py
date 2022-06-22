@@ -24,4 +24,4 @@ class CreateInstance(Action):
 		return []
 	
 	def execute(self) -> None:
-		print(str(Vultr.create_instance()))
+		print(str(Vultr.create_instance(min_ram=2000)))

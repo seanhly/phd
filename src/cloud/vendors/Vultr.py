@@ -101,13 +101,14 @@ class Vultr(Vendor):
 		plan: Plan = None,
 		os: OperatingSystem = None,
 		sshkey: SSHKey = None,
+		**kwargs
 	):
 		if not region:
 			from cloud.server.Regions import Regions
 			region = Regions.nearest_region()
 		if not plan:
 			from cloud.server.Plans import Plans
-			plan = Plans.cheapest_plan(region=region)
+			plan = Plans.cheapest_plan(region=region, **kwargs)
 		if not os:
 			from cloud.server.OperatingSystems import OperatingSystems
 			os = OperatingSystems.default_os()

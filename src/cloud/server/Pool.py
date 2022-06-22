@@ -35,7 +35,7 @@ class Pool(Entity):
 					for a, b, c in pool
 				], f)
 		if not pool:
-			vendor.create_instance()
+			vendor.create_instance(min_ram=2000)
 			pool = [
 				[0, False, instance]
 				for instance in vendor.list_instances(label="phd")
