@@ -32,6 +32,7 @@ class ParseAcademicPDF(Action):
 		grobid_ip = pool.pool[0][2].main_ip
 		if self.query:
 			if exists(self.query):
+				print(grobid_ip)
 				tei_str = subprocess.check_output(
 					[
 						"/usr/bin/curl",
@@ -44,5 +45,6 @@ class ParseAcademicPDF(Action):
 					],
 					stderr=subprocess.DEVNULL
 				).decode()
+				print(tei_str)
 				tei = grobid_tei_xml.parse_document_xml(tei_str).to_dict()
 				print(tei)

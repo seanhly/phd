@@ -1,7 +1,7 @@
 from actions.Action import Action
 from constants import GROBID_DIR_PATH, GROBID_EXEC_PATH, GROBID_SOURCE, WORKING_DIR
-from os import makedirs
-from os.path import exists
+from os import makedirs, walk, chmod
+from os.path import exists, join
 import subprocess
 import zipfile
 import io
@@ -34,6 +34,10 @@ class LocalGrobid(Action):
 			makedirs(WORKING_DIR)
 		if not exists(GROBID_EXEC_PATH):
 			zipfile.ZipFile(io.BytesIO(requests.get(GROBID_SOURCE).content)).extractall(WORKING_DIR)
+		for path, _, files in walk(GROBID_DIR_PATH):
+			for file in files:
+				file_path = join(path, file)
+				chmod(file_path, "700")
 		tmux = subprocess.Popen(
 			[
 				"/usr/bin/tmux",
