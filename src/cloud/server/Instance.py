@@ -2,9 +2,9 @@ import subprocess
 from typing import List
 import dateparser
 from cloud.server.Entity import Entity
-from constants import GROBID_DIR_PATH, GROBID_EXEC_PATH, GROBID_GIT_SOURCE, INSTALL_SCRIPT_URL
-from os.path import exists
-from os import makedirs
+from constants import EXECUTABLE, INSTALL_SCRIPT_URL
+
+INSTALL_SCRIPT = f"sh -c \"$(curl -fsSL {INSTALL_SCRIPT_URL})\""
 
 
 class Instance(Entity):
@@ -52,31 +52,22 @@ class Instance(Entity):
 	def destroy(self):
 		self.vendor.destroy_instance(self.id)
 
-	def run_grobid(self):
-		cmd = subprocess.Popen(
+	def install(self):
+		install = subprocess.Popen(
 			[
 				"/usr/bin/ssh",
 				f"root@{self.main_ip}",
-				f"sh -c \"$(curl -fsSL {INSTALL_SCRIPT_URL})\"",
-			],
-			cwd=GROBID_DIR_PATH,
+				INSTALL_SCRIPT
+			]
 		)
-		cmd.wait()
-		return
-		pipeline = []
-		if not exists(GROBID_DIR_PATH):
-			makedirs(GROBID_DIR_PATH)
-		if not exists(GROBID_EXEC_PATH):
-			pipeline.append(f"git clone {GROBID_GIT_SOURCE} .")
-		pipeline.append(f"{GROBID_EXEC_PATH} run")
-		tmux = subprocess.Popen(
+		install.wait()
+	
+	def run_grobid(self):
+		remote = subprocess.Popen(
 			[
-				"/usr/bin/tmux",
-				"new-session",
-				"-s",
-				"phd",
-				" && ".join(pipeline)
-			],
-			cwd=GROBID_DIR_PATH,
+				"/usr/bin/ssh",
+				f"root@{self.main_ip}",
+				f"INSTALL_SCRIPT && {EXECUTABLE} local-grobid",
+			]
 		)
-		tmux.wait()
+		remote.wait()

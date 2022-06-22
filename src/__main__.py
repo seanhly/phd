@@ -1,17 +1,39 @@
 #!/usr/bin/python3
+from actions import Action
+from cloud.server.Pool import Pool
+from cloud.vendors.Vultr import Vultr
+from constants import INPUT_DIR
+from os import environ, listdir, makedirs
+from os.path import join, exists
+from parse_dynamic_argument import parse_dynamic_argument
+from typing import Optional, Type
+from urllib import request as request
+import grobid_tei_xml
 import subprocess
 import sys
-from urllib import request as request
-from os.path import join, exists
-from os import environ, listdir, makedirs
-from cloud.server.Pool import Pool
-import grobid_tei_xml
 
-from cloud.vendors.Vultr import Vultr
-from constants import GIT_SOURCE, INPUT_DIR, EXECUTABLE
+WINDOW_TITLE = "Docmuch search…"
 
-pool = Pool.load(Vultr)
-pool.run_grobid()
+action = sys.argv[1]
+args = sys.argv[2:]
+arguments = [
+	parse_dynamic_argument(arg, action)
+	for arg in args
+]
+FoundAction: Optional[Type[Action]] = None
+for T in Action.__subclasses__():
+	if action == T.command():
+		FoundAction = T
+		break
+if FoundAction:
+	FoundAction(arguments).execute()
+	exit_code = 0
+else:
+	sys.stderr.write(f"unknown sub-command: {action}\n")
+	exit_code = 1
+sys.exit(exit_code)
+
+
 files = listdir(INPUT_DIR)
 sys.exit(0)
 print(files)

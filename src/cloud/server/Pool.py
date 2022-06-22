@@ -42,6 +42,10 @@ class Pool(Entity):
 			]
 		if pool:
 			return Pool(dict(pool=pool), vendor)
+
+	def install(self):
+		for created_ts, processing, instance in self.pool:
+			instance.install()
 	
 	def run_grobid(self):
 		for created_ts, processing, instance in self.pool:
