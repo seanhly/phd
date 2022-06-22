@@ -15,6 +15,7 @@ GROBID_EXEC_PATH = join(GROBID_DIR_PATH, "gradlew")
 HOME = environ['HOME']
 INPUT_DIR = join(HOME, "Code", "phd", "input")
 PHD_POOL = join(HOME, ".phd_pool.json")
+PHD_NEAREST_SERVER = join(HOME, ".phd_nearest")
 PHD_TOKEN_PATH = join(HOME, ".phd_token")
 PHD_TOKEN = ""
 if exists(PHD_TOKEN_PATH):

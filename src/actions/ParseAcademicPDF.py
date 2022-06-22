@@ -29,7 +29,7 @@ class ParseAcademicPDF(Action):
 	
 	def execute(self) -> None:
 		pool = Pool.load(Vultr)
-		grobid_ip = pool.pool[-1][2].main_ip
+		grobid_ip = pool.pool[0][2].main_ip
 		if self.query:
 			if exists(self.query):
 				print(grobid_ip)

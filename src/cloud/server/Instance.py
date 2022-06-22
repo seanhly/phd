@@ -50,7 +50,7 @@ class Instance(Entity):
 	def __str__(self):
 		d = self.__dict__
 		if "main_ip" in d:
-			s = f"{self.id}\t{self.main_ip} ({self.status}, {self.server_status}, {self.internal_ip}, {self.v6_main_ip})"
+			s = f"{self.id}\t{self.main_ip} ({self.ram}, {self.status}, {self.server_status}, {self.internal_ip}, {self.v6_main_ip})"
 		else:
 			s = str(d)
 		
