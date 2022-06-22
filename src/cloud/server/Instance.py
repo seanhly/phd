@@ -2,7 +2,7 @@ import subprocess
 from typing import List
 import dateparser
 from cloud.server.Entity import Entity
-from constants import GROBID_DIR_PATH, GROBID_EXEC_PATH, GROBID_GIT_SOURCE
+from constants import EXECUTABLE, GIT_SOURCE, GROBID_DIR_PATH, GROBID_EXEC_PATH, GROBID_GIT_SOURCE, POOL_LABEL
 from os.path import exists
 from os import makedirs
 
@@ -53,6 +53,16 @@ class Instance(Entity):
 		self.vendor.destroy_instance(self.id)
 
 	def run_grobid(self):
+		cmd = subprocess.Popen(
+			[
+				"/usr/bin/ssh",
+				f"root@{self.main_ip}",
+				f"if [ -e {EXECUTABLE} ]; then {EXECUTABLE} run-grobid; else git clone {GIT_SOURCE} {POOL_LABEL}; (cd {POOL_LABEL} && make install); rm -r {POOL_LABEL}; fi"
+			],
+			cwd=GROBID_DIR_PATH,
+		)
+		cmd.wait()
+		return
 		pipeline = []
 		if not exists(GROBID_DIR_PATH):
 			makedirs(GROBID_DIR_PATH)

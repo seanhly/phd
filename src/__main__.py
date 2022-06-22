@@ -8,7 +8,7 @@ from cloud.server.Pool import Pool
 import grobid_tei_xml
 
 from cloud.vendors.Vultr import Vultr
-from constants import INPUT_DIR
+from constants import GIT_SOURCE, INPUT_DIR, EXECUTABLE
 
 pool = Pool.load(Vultr)
 pool.run_grobid()

@@ -1,6 +1,8 @@
 from os.path import join
 from os import environ
 
+GIT_SOURCE = "https://github.com/seanhly/phd"
+
 GROBID_GIT_SOURCE = "https://github.com/kermitt2/grobid"
 GROBID_DIR_NAME = "grobid"
 WORKING_DIR = "/tmp"
@@ -13,3 +15,4 @@ INPUT_DIR = join(HOME, "Code", "phd", "input")
 PHD_POOL = join(HOME, ".phd_pool.json")
 
 POOL_LABEL = "phd"
+EXECUTABLE = "/usr/bin/phd"
