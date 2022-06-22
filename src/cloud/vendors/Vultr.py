@@ -9,7 +9,7 @@ from cloud.server.Plan import Plan
 from cloud.server.Region import Region
 from cloud.server.SSHKey import SSHKey
 import re
-from constants import POOL_LABEL
+from constants import PHD_TOKEN, POOL_LABEL
 
 
 def lowest_cost_per_disk(plan: Plan):
@@ -38,7 +38,7 @@ class Vultr(Vendor):
 							"/usr/bin/curl",
 							'https://api.vultr.com/v2/regions?per_page=500',
 							"-H",
-							f"Authorization: Bearer {t}",
+							f"Authorization: Bearer {PHD_TOKEN}",
 						],
 						stderr=subprocess.DEVNULL
 					).decode()
@@ -66,7 +66,7 @@ class Vultr(Vendor):
 							"/usr/bin/curl",
 							'https://api.vultr.com/v2/plans?per_page=500',
 							"-H",
-							f"Authorization: Bearer {t}",
+							f"Authorization: Bearer {PHD_TOKEN}",
 						],
 						stderr=subprocess.DEVNULL
 					).decode()
@@ -98,7 +98,7 @@ class Vultr(Vendor):
 							"/usr/bin/curl",
 							'https://api.vultr.com/v2/os?per_page=500',
 							"-H",
-							f"Authorization: Bearer {t}",
+							f"Authorization: Bearer {PHD_TOKEN}",
 						],
 						stderr=subprocess.DEVNULL
 					).decode()
@@ -123,7 +123,7 @@ class Vultr(Vendor):
 						"/usr/bin/curl",
 						'https://api.vultr.com/v2/ssh-keys?per_page=500',
 						"-H",
-						f"Authorization: Bearer {t}",
+						f"Authorization: Bearer {PHD_TOKEN}",
 					],
 					stderr=subprocess.DEVNULL
 				).decode()
@@ -142,7 +142,7 @@ class Vultr(Vendor):
 							"/usr/bin/curl",
 							'https://api.vultr.com/v2/instances?per_page=500',
 							"-H",
-							f"Authorization: Bearer {t}",
+							f"Authorization: Bearer {PHD_TOKEN}",
 						],
 						stderr=subprocess.DEVNULL
 					).decode()
@@ -179,7 +179,7 @@ class Vultr(Vendor):
 					"-X",
 					"POST",
 					"-H",
-					f"Authorization: Bearer {t}",
+					f"Authorization: Bearer {PHD_TOKEN}",
 					"-H",
 					"Content-Type: application/json",
 					"--data",
@@ -208,7 +208,7 @@ class Vultr(Vendor):
 				"-X",
 				"DELETE",
 				"-H",
-				f"Authorization: Bearer {t}",
+				f"Authorization: Bearer {PHD_TOKEN}",
 			],
 			stderr=subprocess.DEVNULL
 		).decode())
