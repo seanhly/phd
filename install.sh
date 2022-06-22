@@ -1,6 +1,6 @@
 if [ -e /usr/bin/apt-get ]; then
 	apt-get -y install default-jre
-elif [ -e /usr/bin/pacman ]
+elif [ -e /usr/bin/pacman ]; then
 	yes y | pacman -S jre-openjdk-headless
 fi	
 pip3 install grobid-tei-xml dateparser
