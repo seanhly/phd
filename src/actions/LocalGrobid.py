@@ -41,7 +41,7 @@ class LocalGrobid(Action):
 				"-d",
 				"-s",
 				"phd",
-				f"/usr/bin/sh {GROBID_EXEC_PATH} run && read k",
+				f"/usr/bin/sh {GROBID_EXEC_PATH} run",
 			],
 			cwd=GROBID_DIR_PATH,
 		)
