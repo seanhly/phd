@@ -1,8 +1,11 @@
 from actions.Action import Action
-from constants import GROBID_DIR_PATH, GROBID_EXEC_PATH, GROBID_GIT_SOURCE
+from constants import GROBID_DIR_PATH, GROBID_EXEC_PATH, GROBID_SOURCE, WORKING_DIR
 from os import makedirs
 from os.path import exists
 import subprocess
+import zipfile
+import io
+import requests
 
 
 class LocalGrobid(Action):
@@ -27,12 +30,10 @@ class LocalGrobid(Action):
 		return []
 	
 	def execute(self) -> None:
-		pipeline = []
-		if not exists(GROBID_DIR_PATH):
-			makedirs(GROBID_DIR_PATH)
+		if not exists(WORKING_DIR):
+			makedirs(WORKING_DIR)
 		if not exists(GROBID_EXEC_PATH):
-			pipeline.append(f"git clone {GROBID_GIT_SOURCE} .")
-		pipeline.append(f"{GROBID_EXEC_PATH} run")
+			zipfile.ZipFile(io.BytesIO(requests.get(GROBID_SOURCE).content)).extractall(WORKING_DIR)
 		tmux = subprocess.Popen(
 			[
 				"/usr/bin/tmux",
@@ -40,7 +41,7 @@ class LocalGrobid(Action):
 				"-d",
 				"-s",
 				"phd",
-				" && ".join(pipeline)
+				f"{GROBID_EXEC_PATH} run",
 			],
 			cwd=GROBID_DIR_PATH,
 		)

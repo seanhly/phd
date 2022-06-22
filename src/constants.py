@@ -4,8 +4,9 @@ from os import environ
 GITHUB_REPOSITORY = "seanhly/phd"
 GIT_SOURCE = f"https://github.com/{GITHUB_REPOSITORY}"
 
-GROBID_GIT_SOURCE = "https://github.com/kermitt2/grobid"
-GROBID_DIR_NAME = "grobid"
+GROBID_VERSION = "0.7.1"
+GROBID_SOURCE = "https://github.com/kermitt2/grobid/archive/refs/tags/{GROBID_VERSION}.zip"
+GROBID_DIR_NAME = f"grobid-{GROBID_VERSION}"
 WORKING_DIR = "/tmp"
 
 GROBID_DIR_PATH = join(WORKING_DIR, GROBID_DIR_NAME)
