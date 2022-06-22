@@ -7,7 +7,7 @@ GIT_SOURCE = f"https://github.com/{GITHUB_REPOSITORY}"
 GROBID_VERSION = "0.7.1"
 GROBID_SOURCE = f"https://github.com/kermitt2/grobid/archive/refs/tags/{GROBID_VERSION}.zip"
 GROBID_DIR_NAME = f"grobid-{GROBID_VERSION}"
-WORKING_DIR = "/tmp"
+WORKING_DIR = "/root"
 
 GROBID_DIR_PATH = join(WORKING_DIR, GROBID_DIR_NAME)
 GROBID_EXEC_PATH = join(GROBID_DIR_PATH, "gradlew")
