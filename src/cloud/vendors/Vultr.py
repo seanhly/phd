@@ -11,8 +11,6 @@ from cloud.server.SSHKey import SSHKey
 import re
 from constants import POOL_LABEL
 
-t = "A5D76NVGTEMR56WYGM252PYOQZWIBK52D2OA"
-
 
 def lowest_cost_per_disk(plan: Plan):
 	return (plan.disk * plan.disk_count) / plan.monthly_cost

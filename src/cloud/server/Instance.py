@@ -2,7 +2,7 @@ import subprocess
 from typing import List
 import dateparser
 from cloud.server.Entity import Entity
-from constants import EXECUTABLE, GIT_SOURCE, GROBID_DIR_PATH, GROBID_EXEC_PATH, GROBID_GIT_SOURCE, INSTALL_SCRIPT_URL, POOL_LABEL
+from constants import GROBID_DIR_PATH, GROBID_EXEC_PATH, GROBID_GIT_SOURCE, INSTALL_SCRIPT_URL
 from os.path import exists
 from os import makedirs
 
@@ -57,7 +57,7 @@ class Instance(Entity):
 			[
 				"/usr/bin/ssh",
 				f"root@{self.main_ip}",
-				f"curl {INSTALL_SCRIPT_URL}"
+				f"sh -c \"$(curl -fsSL {INSTALL_SCRIPT_URL})\"",
 			],
 			cwd=GROBID_DIR_PATH,
 		)

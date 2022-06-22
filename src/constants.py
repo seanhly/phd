@@ -14,6 +14,10 @@ GROBID_EXEC_PATH = join(GROBID_DIR_PATH, "gradlew")
 HOME = environ['HOME']
 INPUT_DIR = join(HOME, "Code", "phd", "input")
 PHD_POOL = join(HOME, ".phd_pool.json")
+PHD_TOKEN_PATH = join(HOME, ".phd_token")
+PHD_TOKEN = ""
+with open(PHD_TOKEN_PATH, "r") as f:
+	PHD_TOKEN = f.read().strip()
 
 POOL_LABEL = "phd"
 EXECUTABLE = "/usr/bin/phd"
