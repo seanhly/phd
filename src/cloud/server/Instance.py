@@ -4,7 +4,8 @@ import dateparser
 from cloud.server.Entity import Entity
 from constants import EXECUTABLE, INSTALL_SCRIPT_URL
 
-INSTALL_SCRIPT = f"sh -c \"$(curl -fsSL {INSTALL_SCRIPT_URL})\""
+INSTALL_SCRIPT = f"sh -c \"$(wget {INSTALL_SCRIPT_URL} -O -)\""
+
 
 
 class Instance(Entity):
