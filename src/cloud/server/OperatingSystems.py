@@ -6,4 +6,4 @@ class OperatingSystems:
 		return Vultr.list_operating_systems(
 			os_family="ubuntu",
 			in_name={"LTS"}
-		)[0]
+		)[0] # Give me the newest version of the above.
