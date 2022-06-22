@@ -1,2 +1,3 @@
 from actions.Action import Action
-from actions.RunGrobid import RunGrobid
+from actions.LocalGrobid import LocalGrobid
+from actions.RemoteGrobid import RemoteGrobid
