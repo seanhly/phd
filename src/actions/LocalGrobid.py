@@ -33,6 +33,7 @@ class LocalGrobid(Action):
 		if not exists(GROBID_EXEC_PATH):
 			pipeline.append(f"git clone {GROBID_GIT_SOURCE} .")
 		pipeline.append(f"{GROBID_EXEC_PATH} run")
+		print(pipeline)
 		tmux = subprocess.Popen(
 			[
 				"/usr/bin/tmux",
