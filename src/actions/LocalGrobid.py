@@ -37,7 +37,7 @@ class LocalGrobid(Action):
 		for path, _, files in walk(GROBID_DIR_PATH):
 			for file in files:
 				file_path = join(path, file)
-				chmod(file_path, "700")
+				chmod(file_path, 0o700)
 		tmux = subprocess.Popen(
 			[
 				"/usr/bin/tmux",
