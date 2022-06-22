@@ -1,5 +1,5 @@
 import subprocess
-from typing import List, Optional, Set
+from typing import List, Optional, Set, Type
 
 from JSON import JSON
 from cloud.Vendor import Vendor
@@ -8,8 +8,10 @@ from cloud.server.OperatingSystem import OperatingSystem
 from cloud.server.Plan import Plan
 from cloud.server.Region import Region
 from cloud.server.SSHKey import SSHKey
+from cloud.server.Entity import Entity
 import re
 from constants import PHD_TOKEN, POOL_LABEL
+from requests import get
 
 
 def lowest_cost_per_disk(plan: Plan):
@@ -24,29 +26,21 @@ def os_family_name_then_version(os: OperatingSystem):
 			key.insert(2, 9e99)
 	return tuple(key)
 
-
 class Vultr(Vendor):
 	@classmethod
-	def list_regions(cls):
-		regions = [
-			region
-			for region in (
-				Region(r, cls)
-				for r in JSON.loads(
-					subprocess.check_output(
-						[
-							"/usr/bin/curl",
-							'https://api.vultr.com/v2/regions?per_page=500',
-							"-H",
-							f"Authorization: Bearer {PHD_TOKEN}",
-						],
-						stderr=subprocess.DEVNULL
-					).decode()
-				)["regions"]
-			)
-		]
+	def get(cls, E: Type[Entity], label: str):
+		loaded_json = JSON.loads(
+			get(f"https://api.vultr.com/v2/{label}?per_page=500", headers={
+				"Authorization": f"Bearer {PHD_TOKEN}",
+			}).content
+		)
+		inner_json = loaded_json[label.replace("-", "_")]
+		return (E(i, cls) for i in inner_json)
 
-		return regions
+
+	@classmethod
+	def list_regions(cls):
+		return list(cls.get(Region, "regions"))
 
 	@classmethod
 	def list_plans(
@@ -58,20 +52,7 @@ class Vultr(Vendor):
 	):
 		plans = [
 			plan
-			for plan in (
-				Plan(p, cls)
-				for p in JSON.loads(
-					subprocess.check_output(
-						[
-							"/usr/bin/curl",
-							'https://api.vultr.com/v2/plans?per_page=500',
-							"-H",
-							f"Authorization: Bearer {PHD_TOKEN}",
-						],
-						stderr=subprocess.DEVNULL
-					).decode()
-				)["plans"]
-			)
+			for plan in cls.get(Plan, "plans")
 			if (
 				plan.monthly_cost <= max_cost
 				and plan.ram >= min_ram
@@ -90,20 +71,8 @@ class Vultr(Vendor):
 		in_name: Set[str] = set(),
 	):
 		operating_systems = [
-			os for os in (
-				OperatingSystem(o, cls)
-				for o in JSON.loads(
-					subprocess.check_output(
-						[
-							"/usr/bin/curl",
-							'https://api.vultr.com/v2/os?per_page=500',
-							"-H",
-							f"Authorization: Bearer {PHD_TOKEN}",
-						],
-						stderr=subprocess.DEVNULL
-					).decode()
-				)["os"]
-			)
+			os
+			for os in cls.get(OperatingSystem, "os")
 			if (
 				(not os_family or os.family == os_family)
 				and all(substr in os.name for substr in in_name)
@@ -115,40 +84,14 @@ class Vultr(Vendor):
 
 	@classmethod
 	def list_ssh_keys(cls):
-		return [
-			SSHKey(k, cls)
-			for k in JSON.loads(
-				subprocess.check_output(
-					[
-						"/usr/bin/curl",
-						'https://api.vultr.com/v2/ssh-keys?per_page=500',
-						"-H",
-						f"Authorization: Bearer {PHD_TOKEN}",
-					],
-					stderr=subprocess.DEVNULL
-				).decode()
-			)["ssh_keys"]
-		]
+		return list(cls.get(SSHKey, "ssh-keys"))
 
 	@classmethod
 	def list_instances(cls, label: Optional[str] = None):
 		return [
-			instance
-			for instance in (
-				Instance(i, cls)
-				for i in JSON.loads(
-					subprocess.check_output(
-						[
-							"/usr/bin/curl",
-							'https://api.vultr.com/v2/instances?per_page=500',
-							"-H",
-							f"Authorization: Bearer {PHD_TOKEN}",
-						],
-						stderr=subprocess.DEVNULL
-					).decode()
-				)["instances"]
-			)
-			if (not label or label == instance.label)
+			i
+			for i in cls.get(Instance, "instances")
+			if (not label or label == i.label)
 		]
 
 	@classmethod
@@ -191,6 +134,9 @@ class Vultr(Vendor):
 							os_id=os.id,
 							backups="disabled",
 							sshkey_id=[sshkey.id],
+							enable_ipv6=True,
+							activation_email=False,
+							enable_vpc=True,
 						)
 					),
 				],

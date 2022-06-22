@@ -1,10 +1,8 @@
 #!/usr/bin/python3
 from actions import Action
-from cloud.server.Pool import Pool
-from cloud.vendors.Vultr import Vultr
 from constants import INPUT_DIR
-from os import environ, listdir, makedirs
-from os.path import join, exists
+from os import listdir
+from os.path import join
 from parse_dynamic_argument import parse_dynamic_argument
 from typing import Optional, Type
 from urllib import request as request
@@ -33,9 +31,7 @@ else:
 	exit_code = 1
 sys.exit(exit_code)
 
-
 files = listdir(INPUT_DIR)
-sys.exit(0)
 print(files)
 for file in files:
 	path = join(INPUT_DIR, file)
@@ -48,15 +44,3 @@ for file in files:
 	).decode()
 	tei = grobid_tei_xml.parse_document_xml(tei_str).to_dict()
 	print(tei)
-
-for instance in Vultr.list_instances(label="phd"):
-	instance.destroy()
-instances = [
-	Vultr.create_instance()
-	for i in range(20)
-]
-a = Vultr.create_instance()
-b = Vultr.create_instance()
-print([a, b])
-print(str(a))
-print(str(b))
