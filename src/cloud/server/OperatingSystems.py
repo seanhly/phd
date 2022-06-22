@@ -14,5 +14,5 @@ PREFER_ARCH = dict(
 
 class OperatingSystems:
 	def default_os():
-		options = Vultr.list_operating_systems(**PREFER_UBUNTU)
+		options = Vultr.list_operating_systems(**PREFER_ARCH)
 		return options[0] # Give me the newest version of the above.

@@ -1,5 +1,6 @@
 from actions.Action import Action
 from cloud.vendors.Vultr import Vultr
+from constants import POOL_LABEL
 
 
 class ListInstances(Action):
@@ -24,6 +25,6 @@ class ListInstances(Action):
 		return []
 	
 	def execute(self) -> None:
-		#for i in Vultr.list_instances(label=POOL_LABEL):
-		for i in Vultr.list_instances():
+		#for i in Vultr.list_instances():
+		for i in Vultr.list_instances(label=POOL_LABEL):
 			print(str(i))
