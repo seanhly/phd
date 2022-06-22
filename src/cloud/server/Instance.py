@@ -67,7 +67,7 @@ class Instance(Entity):
 			[
 				"/usr/bin/ssh",
 				f"root@{self.main_ip}",
-				f"INSTALL_SCRIPT && {EXECUTABLE} local-grobid",
+				f"{INSTALL_SCRIPT} && {EXECUTABLE} local-grobid",
 			]
 		)
 		remote.wait()
