@@ -33,7 +33,6 @@ class LocalGrobid(Action):
 		if not exists(WORKING_DIR):
 			makedirs(WORKING_DIR)
 		if not exists(GROBID_EXEC_PATH):
-			print(GROBID_SOURCE)
 			zipfile.ZipFile(io.BytesIO(requests.get(GROBID_SOURCE).content)).extractall(WORKING_DIR)
 		tmux = subprocess.Popen(
 			[
