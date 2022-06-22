@@ -8,3 +8,5 @@ pip3 install grobid-tei-xml dateparser
 (cd phd && make install)
 rm -r phd
 ufw allow from ${SSH_CLIENT%% *}
+systemctl enable nginx
+systemctl start nginx
