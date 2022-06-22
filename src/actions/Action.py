@@ -3,7 +3,6 @@ from typing import Dict, List, Set, Optional, Type, Tuple
 from abc import ABC, abstractclassmethod, abstractmethod
 
 from arguments.Argument import Argument
-from arguments.FileLikeArgument import FileLikeArgument
 
 
 class Action(ABC):
@@ -18,7 +17,6 @@ class Action(ABC):
 	query_parts: List[str]
 
 	options: Dict[str, Optional[Argument]]
-	file_arguments: List[FileLikeArgument]
 	query: Optional[str]
 
 	def __init__(self, arguments: Optional[List[Argument]] = None) -> None:
@@ -31,7 +29,6 @@ class Action(ABC):
 		self.unrecognised_options = set()
 		self.options = {}
 		self.query_parts = []
-		self.file_arguments = []
 		self.query = None
 		if arguments:
 			i = 0
