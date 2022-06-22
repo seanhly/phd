@@ -5,7 +5,7 @@ GITHUB_REPOSITORY = "seanhly/phd"
 GIT_SOURCE = f"https://github.com/{GITHUB_REPOSITORY}"
 
 GROBID_VERSION = "0.7.1"
-GROBID_SOURCE = "https://github.com/kermitt2/grobid/archive/refs/tags/{GROBID_VERSION}.zip"
+GROBID_SOURCE = f"https://github.com/kermitt2/grobid/archive/refs/tags/{GROBID_VERSION}.zip"
 GROBID_DIR_NAME = f"grobid-{GROBID_VERSION}"
 WORKING_DIR = "/tmp"
 
