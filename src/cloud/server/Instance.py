@@ -2,7 +2,7 @@ import subprocess
 from typing import List
 import dateparser
 from cloud.server.Entity import Entity
-from constants import EXECUTABLE, GIT_SOURCE, GROBID_DIR_PATH, GROBID_EXEC_PATH, GROBID_GIT_SOURCE, POOL_LABEL
+from constants import EXECUTABLE, GIT_SOURCE, GROBID_DIR_PATH, GROBID_EXEC_PATH, GROBID_GIT_SOURCE, INSTALL_SCRIPT_URL, POOL_LABEL
 from os.path import exists
 from os import makedirs
 
@@ -57,7 +57,7 @@ class Instance(Entity):
 			[
 				"/usr/bin/ssh",
 				f"root@{self.main_ip}",
-				f"if [ -e {EXECUTABLE} ]; then {EXECUTABLE} run-grobid; else git clone {GIT_SOURCE} {POOL_LABEL}; (cd {POOL_LABEL} && make install); rm -r {POOL_LABEL}; fi"
+				f"curl {INSTALL_SCRIPT_URL}"
 			],
 			cwd=GROBID_DIR_PATH,
 		)

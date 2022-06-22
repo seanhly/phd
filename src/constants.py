@@ -1,7 +1,8 @@
 from os.path import join
 from os import environ
 
-GIT_SOURCE = "https://github.com/seanhly/phd"
+GITHUB_REPOSITORY = "seanhly/phd"
+GIT_SOURCE = f"https://github.com/{GITHUB_REPOSITORY}"
 
 GROBID_GIT_SOURCE = "https://github.com/kermitt2/grobid"
 GROBID_DIR_NAME = "grobid"
@@ -16,3 +17,5 @@ PHD_POOL = join(HOME, ".phd_pool.json")
 
 POOL_LABEL = "phd"
 EXECUTABLE = "/usr/bin/phd"
+
+INSTALL_SCRIPT_URL = f"https://raw.githubusercontent.com/{GITHUB_REPOSITORY}/master/install.sh"
