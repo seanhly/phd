@@ -1,5 +1,6 @@
 from actions.Action import Action
 from cloud.vendors.Vultr import Vultr
+from cloud.server.Pool import Pool
 from constants import POOL_LABEL
 
 
@@ -25,5 +26,8 @@ class DestroyInstances(Action):
 		return []
 	
 	def execute(self) -> None:
-		for i in Vultr.list_instances(label=POOL_LABEL):
-			i.destroy()
+		current_pool = Pool.load(Vultr)
+		for instance in Vultr.list_instances(label=POOL_LABEL):
+			instance.destroy()
+			current_pool.remove(instance.id)
+		current_pool.dump()

@@ -1,4 +1,5 @@
 from actions.Action import Action
+from cloud.server.Pool import Pool
 from cloud.vendors.Vultr import Vultr
 
 
@@ -24,4 +25,7 @@ class CreateInstance(Action):
 		return []
 	
 	def execute(self) -> None:
-		print(str(Vultr.create_instance(min_ram=2000)))
+		current_pool = Pool.load(Vultr)
+		instance = Vultr.create_instance(min_ram=2000)
+		current_pool.add(instance)
+		current_pool.dump()

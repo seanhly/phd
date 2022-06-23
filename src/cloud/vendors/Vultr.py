@@ -1,5 +1,5 @@
 import subprocess
-from typing import List, Optional, Set, Type
+from typing import Iterable, List, Optional, Set, Type
 
 from JSON import JSON
 from cloud.Vendor import Vendor
@@ -28,7 +28,7 @@ def os_family_name_then_version(os: OperatingSystem):
 
 class Vultr(Vendor):
 	@classmethod
-	def get(cls, E: Type[Entity], label: str):
+	def get(cls, E: Entity, label: str) -> Iterable[Entity]:
 		loaded_json = JSON.loads(
 			get(f"https://api.vultr.com/v2/{label}?per_page=500", headers={
 				"Authorization": f"Bearer {PHD_TOKEN}",
@@ -87,7 +87,7 @@ class Vultr(Vendor):
 		return list(cls.get(SSHKey, "ssh-keys"))
 
 	@classmethod
-	def list_instances(cls, label: Optional[str] = None):
+	def list_instances(cls, label: Optional[str] = None) -> List[Instance]:
 		return [
 			i
 			for i in cls.get(Instance, "instances")
@@ -142,7 +142,7 @@ class Vultr(Vendor):
 					),
 				],
 				stderr=subprocess.DEVNULL
-			).decode()),
+			).decode())["instance"],
 			vendor=cls,
 		)
 

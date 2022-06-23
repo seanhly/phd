@@ -1,4 +1,6 @@
+from turtle import update
 from actions.Action import Action
+from cloud.server.Pool import Pool
 from cloud.vendors.Vultr import Vultr
 from constants import POOL_LABEL
 
@@ -25,6 +27,8 @@ class ListInstances(Action):
 		return []
 	
 	def execute(self) -> None:
-		#for i in Vultr.list_instances():
-		for i in Vultr.list_instances(label=POOL_LABEL):
+		vendor = Vultr
+		instances = vendor.list_instances(label=POOL_LABEL)
+		Pool.load(vendor).update(instances)
+		for i in instances:
 			print(str(i))
