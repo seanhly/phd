@@ -26,21 +26,34 @@ def os_family_name_then_version(os: OperatingSystem):
 			key.insert(2, 9e99)
 	return tuple(key)
 
+def plural(singular: str):
+	if len(singular) <= 2 and singular[-1] == "s":
+		return singular
+	return f"{singular}s"
+
 class Vultr(Vendor):
 	@classmethod
-	def get(cls, E: Entity, label: str) -> Iterable[Entity]:
+	def get(cls, E: Type[Entity], label: str, id: str = None):
+		if id:
+			suffix = f"/{id}"
+			result_key = label
+		else:
+			suffix = "?per_page=500"
+			result_key = plural(label)
 		loaded_json = JSON.loads(
-			get(f"https://api.vultr.com/v2/{label}?per_page=500", headers={
+			get(f"https://api.vultr.com/v2/{plural(label)}{suffix}", headers={
 				"Authorization": f"Bearer {PHD_TOKEN}",
 			}).content
 		)
-		inner_json = loaded_json[label.replace("-", "_")]
-		return (E(i, cls) for i in inner_json)
-
+		inner_json = loaded_json[result_key.replace("-", "_")]
+		if id:
+			return E(inner_json, cls)
+		else:
+			return (E(i, cls) for i in inner_json)
 
 	@classmethod
 	def list_regions(cls):
-		return list(cls.get(Region, "regions"))
+		return list(cls.get(Region, "region"))
 
 	@classmethod
 	def list_plans(
@@ -52,7 +65,7 @@ class Vultr(Vendor):
 	):
 		plans = [
 			plan
-			for plan in cls.get(Plan, "plans")
+			for plan in cls.get(Plan, "plan")
 			if (
 				plan.monthly_cost <= max_cost
 				and plan.ram >= min_ram
@@ -84,15 +97,19 @@ class Vultr(Vendor):
 
 	@classmethod
 	def list_ssh_keys(cls):
-		return list(cls.get(SSHKey, "ssh-keys"))
+		return list(cls.get(SSHKey, "ssh-key"))
 
 	@classmethod
 	def list_instances(cls, label: Optional[str] = None) -> List[Instance]:
 		return [
 			i
-			for i in cls.get(Instance, "instances")
+			for i in cls.get(Instance, "instance")
 			if (not label or label == i.label)
 		]
+
+	@classmethod
+	def get_instance(cls, id: str) -> Instance:
+		return cls.get(Instance, "instance", id)
 
 	@classmethod
 	def create_instance(

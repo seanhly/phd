@@ -26,6 +26,10 @@ class Vendor(ABC):
 		pass
 
 	@abstractclassmethod
+	def get_instance(cls, id: str) -> Instance:
+		pass
+
+	@abstractclassmethod
 	def create_instance(cls, region, plan, os, sshkey):
 		pass
 
