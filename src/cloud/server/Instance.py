@@ -63,6 +63,8 @@ class Instance(Entity):
 		remote = subprocess.Popen(
 			[
 				"/usr/bin/ssh",
+				"-o",
+				"StrictHostKeyChecking=no",
 				f"root@{self.main_ip}",
 				f"{INSTALL_SCRIPT} && {EXECUTABLE} local-grobid",
 			]
