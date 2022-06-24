@@ -44,7 +44,6 @@ class Pool(Entity):
 		i = 0
 		while i < len(self.pool):
 			instance = self.pool[i]
-			print(str(instance))
 			if instance.id == id:
 				del self.pool[i]
 				removed = True
