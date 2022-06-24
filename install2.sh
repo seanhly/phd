@@ -1,7 +1,7 @@
 if [ -e /usr/bin/apt-get ]; then
-	apt-get -y install default-jre nginx
+	apt-get -y install default-jre nginx redis
 elif [ -e /usr/bin/pacman ]; then
-	yes y | pacman -S jre11-openjdk-headless tmux nginx
+	yes y | pacman -S jre11-openjdk-headless tmux nginx redis
 fi	
 pip3 install grobid-tei-xml dateparser
 /usr/bin/git clone https://github.com/seanhly/phd
@@ -10,4 +10,6 @@ rm -r phd
 ufw allow from ${SSH_CLIENT%% *}
 curl https://raw.githubusercontent.com/seanhly/phd/master/grobid.nginx.conf > /etc/nginx/nginx.conf
 systemctl enable nginx
-systemctl restart nginx
+systemctl enable redis
+service nginx restart
+service redis restart

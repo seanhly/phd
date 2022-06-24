@@ -58,16 +58,6 @@ class Instance(Entity):
 
 	def destroy(self):
 		self.vendor.destroy_instance(self.id)
-
-	def install(self):
-		install = subprocess.Popen(
-			[
-				"/usr/bin/ssh",
-				f"root@{self.main_ip}",
-				INSTALL_SCRIPT
-			]
-		)
-		install.wait()
 	
 	def run_grobid(self):
 		remote = subprocess.Popen(

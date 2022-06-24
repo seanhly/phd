@@ -61,10 +61,6 @@ class Pool(Entity):
 	def update(self, instances: List[Instance]):
 		self.pool = instances
 		self.dump()
-
-	def install(self):
-		for instance in self.pool:
-			instance.install()
 	
 	def run_grobid(self):
 		for instance in self.pool:
