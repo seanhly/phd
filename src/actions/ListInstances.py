@@ -1,4 +1,3 @@
-from turtle import update
 from actions.Action import Action
 from cloud.server.Pool import Pool
 from cloud.vendors.Vultr import Vultr
