@@ -1,3 +1,4 @@
+from regex import P
 from actions.Action import Action
 from cloud.server.Pool import Pool
 from cloud.vendors.Vultr import Vultr
@@ -38,6 +39,7 @@ class CreateInstance(Action):
 			print(str(i))
 		start = datetime.now().timestamp()
 		while True:
+			print(f"\rAwaiting activation [{int(datetime.now().timestamp() - start)} s]", end="")
 			instance_state = vendor.get_instance(instance.id)
 			if (
 				instance_state.main_ip
@@ -50,9 +52,10 @@ class CreateInstance(Action):
 			):
 				break
 			time.sleep(1)
-			print(f"\rAwaiting activation [{int(datetime.now().timestamp() - start)} s]", end="")
+		print()
+		start = datetime.now().timestamp()
 		while True:
-			print("Checking for SSH...")
+			print(f"\rAwaiting SSH access [{int(datetime.now().timestamp() - start)} s]", end="")
 			s = socket(AF_INET, SOCK_STREAM)
 			try:
 				s.connect((instance_state.main_ip, 22))
@@ -60,4 +63,5 @@ class CreateInstance(Action):
 				break
 			except:
 				time.sleep(1)
+		print()
 		instance_state.run_grobid()

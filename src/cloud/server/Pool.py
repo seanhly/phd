@@ -60,7 +60,3 @@ class Pool(Entity):
 	def update(self, instances: List[Instance]):
 		self.pool = instances
 		self.dump()
-	
-	def run_grobid(self):
-		for instance in self.pool:
-			instance.run_grobid()
