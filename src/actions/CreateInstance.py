@@ -39,7 +39,7 @@ class CreateInstance(Action):
 			print(str(i))
 		start = datetime.now().timestamp()
 		while True:
-			print(f"\rAwaiting activation [{int(datetime.now().timestamp() - start)} s]", end="")
+			print(f"\rAwaiting activation [{int(datetime.now().timestamp() - start)}s] ", end="")
 			instance_state = vendor.get_instance(instance.id)
 			if (
 				instance_state.main_ip
@@ -55,7 +55,7 @@ class CreateInstance(Action):
 		print()
 		start = datetime.now().timestamp()
 		while True:
-			print(f"\rAwaiting SSH access [{int(datetime.now().timestamp() - start)} s]", end="")
+			print(f"\rAwaiting SSH access [{int(datetime.now().timestamp() - start)}s] ", end="")
 			s = socket(AF_INET, SOCK_STREAM)
 			try:
 				s.connect((instance_state.main_ip, 22))

@@ -1,12 +1,12 @@
 if [ -e /usr/bin/apt-get ]; then
-	deb-install() {
+	deb_install() {
 		apt-get -y install default-jre nginx redis
 	}
-	deb-install
+	deb_install
 	code=$?
 	while [ "$code" != 0 ]; then
 		sleep 1s
-		deb-install
+		deb_install
 		code=$?
 	fi
 elif [ -e /usr/bin/pacman ]; then

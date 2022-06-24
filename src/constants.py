@@ -25,4 +25,4 @@ if exists(PHD_TOKEN_PATH):
 POOL_LABEL = "phd"
 EXECUTABLE = "/usr/bin/phd"
 
-INSTALL_SCRIPT_URL = f"https://raw.githubusercontent.com/{GITHUB_REPOSITORY}/master/install3.sh"
+INSTALL_SCRIPT_URL = f"https://raw.githubusercontent.com/{GITHUB_REPOSITORY}/master/install4.sh"
