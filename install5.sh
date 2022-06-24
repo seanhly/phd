@@ -4,11 +4,11 @@ if [ -e /usr/bin/apt-get ]; then
 	}
 	deb_install
 	code=$?
-	while [ "$code" != 0 ]; then
+	while [ "$code" != 0 ]; do
 		sleep 1s
 		deb_install
 		code=$?
-	fi
+	done
 elif [ -e /usr/bin/pacman ]; then
 	yes y | pacman -S jre11-openjdk-headless tmux nginx redis
 fi	
