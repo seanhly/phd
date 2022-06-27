@@ -87,6 +87,7 @@ class Instance(Entity):
 	
 	def allow_communication(self, hosts: List[str]):
 		print(f"Allowing communication between {self.main_ip} and [{', '.join(hosts)}]...")
+		print(self.main_ip, hosts)
 		threads = [
 			subprocess.Popen(
 				[
@@ -102,6 +103,12 @@ class Instance(Entity):
 			)
 		]
 		for host in hosts:
+			other_hosts = (
+				h
+				for h in hosts
+				if h != host
+			)
+			print(host, [*other_hosts, self.main_ip])
 			threads += [
 				subprocess.Popen(
 					[
@@ -111,8 +118,7 @@ class Instance(Entity):
 						f"root@{host}",
 						" && ".join(
 							f"/usr/sbin/ufw allow from {host}"
-							for h in (*hosts, self.main_ip)
-							if h != host
+							for h in (*other_hosts, self.main_ip)
 						)
 					]
 				)
