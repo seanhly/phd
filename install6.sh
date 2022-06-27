@@ -18,7 +18,8 @@ pip3 install grobid-tei-xml dateparser
 rm -r phd
 ufw allow from ${SSH_CLIENT%% *}
 curl https://raw.githubusercontent.com/seanhly/phd/master/grobid.nginx.conf > /etc/nginx/nginx.conf
-systemctl enable nginx
-systemctl enable redis
-service nginx restart
-service redis restart
+curl https://raw.githubusercontent.com/seanhly/phd/master/transmission.json > /etc/transmission-daemon/settings.json
+for s in nginx redis-server transmission-daemon; do
+	systemctl enable $s
+	service $s restart
+done
