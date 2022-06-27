@@ -6,6 +6,7 @@ from constants import POOL_LABEL
 import time
 from socket import socket, AF_INET, SOCK_STREAM
 from datetime import datetime
+import traceback
 
 
 class CreateInstance(Action):
@@ -73,7 +74,8 @@ class CreateInstance(Action):
 				try:
 					s.connect((instance_states[i].main_ip, 22))
 					s.shutdown(2)
-				except:
+				except Exception as e:
+					traceback.print_exc()
 					ssh_closed = True
 					time.sleep(1)
 				i += 1
