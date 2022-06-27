@@ -95,7 +95,7 @@ class Instance(Entity):
 					"StrictHostKeyChecking=no",
 					f"root@{self.main_ip}",
 					" && ".join(
-						f"/usr/sbin/ufw allow {host}"
+						f"/usr/sbin/ufw allow from {host}"
 						for host in hosts
 					)
 				]
@@ -110,7 +110,7 @@ class Instance(Entity):
 						"StrictHostKeyChecking=no",
 						f"root@{host}",
 						" && ".join(
-							f"/usr/sbin/ufw allow {host}"
+							f"/usr/sbin/ufw allow from {host}"
 							for h in (*hosts, self.main_ip)
 							if h != host
 						)
