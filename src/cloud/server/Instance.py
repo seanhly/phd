@@ -1,5 +1,5 @@
 import subprocess
-from typing import List
+from typing import List, Set
 import dateparser
 from cloud.server.Entity import Entity
 from constants import EXECUTABLE, INSTALL_SCRIPT_URL
@@ -18,25 +18,26 @@ POSITION_KEYS = {
 def redis_connection(host: str):
 	Redis(host=host, socket_timeout=2, port=995)
 
-def set_neighbour(host: str, position: int, neighbour: str):
+def set_neighbour(a: str, position: int, b: str):
 	process = subprocess.Popen(
 		[
 			"/usr/bin/ssh",
 			"-o",
 			"StrictHostKeyChecking=no",
-			f"root@{host}",
+			f"root@{a}",
 			f"/usr/bin/redis-cli",
 		],
 		stdin=subprocess.PIPE,
 	)
 	process.stdin.write(
 		bytes(
-			f"set {POSITION_KEYS[position]} {neighbour}",
+			f"set {POSITION_KEYS[position]} {b}",
 			encoding="utf8"
 		)
 	)
 	process.stdin.close()
-	process.wait()
+
+	return process
 
 def get_neighbour(host: str, position: int):
 	process = subprocess.Popen(
@@ -59,8 +60,10 @@ def get_neighbour(host: str, position: int):
 	return process.stdout.read().decode().strip()
 
 def set_neighbours(a: str, position: int, b: str):
-	set_neighbour(a, position, b)
-	set_neighbour(b, -position, a)
+	return [
+		set_neighbour(a, position, b),
+		set_neighbour(b, -position, a),
+	]
 
 
 class Instance(Entity):
@@ -114,100 +117,134 @@ class Instance(Entity):
 	def destroy(self):
 		self.vendor.destroy_instance(self.id)
 	
-	def set_neighbour(self, position: int, connection: str):
-		set_neighbour(self.main_ip, position, connection)
-
-	def set_neighbours(self, position: int, neighbour: str):
-		set_neighbours(self.main_ip, position, neighbour)
-
-	def get_neighbour(self, position: int):
-		return get_neighbour(self.main_ip, position)
-	
-	def allow_communication(self, hosts: List[str]):
-		print(f"Allowing communication between {self.main_ip} and [{', '.join(hosts)}]...")
-		threads = [
-			subprocess.Popen(
-				[
-					"/usr/bin/ssh",
-					"-o",
-					"StrictHostKeyChecking=no",
-					f"root@{self.main_ip}",
-					" && ".join(
-						f"/usr/sbin/ufw allow from {host}"
-						for host in hosts
-					)
-				]
-			)
+	@classmethod
+	def install(cls, new_instances: Set[str]):
+		from cloud.vendors.Vultr import Vultr
+		previous_instances = [
+			instance
+			for instance in Vultr.list_instances(label="phd")
+			if instance.main_ip not in new_instances
 		]
-		for host in hosts:
-			other_hosts = (
-				h
-				for h in hosts
-				if h != host
-			)
-			threads += [
+		threads = []
+		for instance in previous_instances:
+			print(f"Allow access to {instance.main_ip} from new workers.")
+			threads.append(
 				subprocess.Popen(
 					[
 						"/usr/bin/ssh",
 						"-o",
 						"StrictHostKeyChecking=no",
-						f"root@{host}",
+						f"root@{ip}",
 						" && ".join(
-							f"/usr/sbin/ufw allow from {h}"
-							for h in (*other_hosts, self.main_ip)
+							f"/usr/sbin/ufw allow from {new_instance}"
+							for new_instance in new_instances
 						)
 					]
 				)
-			]
+			)
+		for ip in new_instances:
+			# General installation of the new worker.
+			print(f"Installing worker software on {ip}.")
+			threads.append(
+				subprocess.Popen(
+					[
+						"/usr/bin/ssh",
+						"-o",
+						"StrictHostKeyChecking=no",
+						f"root@{ip}",
+						f"{INSTALL_SCRIPT}",
+					]
+				)
+			)
 		for thread in threads:
 			thread.wait()
-		print("Firewall rules added.")
-	
-	def install(self):
-		from cloud.vendors.Vultr import Vultr
-		instances = [
-			instance
-			for instance in Vultr.list_instances(label="phd")
-			if instance.id != self.id
-		]
-		# General installation of the new worker.
-		print(f"Installing worker software on {self.main_ip}.")
-		remote = subprocess.Popen(
-			[
-				"/usr/bin/ssh",
-				"-o",
-				"StrictHostKeyChecking=no",
-				f"root@{self.main_ip}",
-				f"{INSTALL_SCRIPT}",
-			]
-		)
 		print("Installed worker software.")
-		remote.wait()
-		if instances:
-			random_instance = random.choice(instances)
-			self.allow_communication([random_instance.main_ip])
-		if len(instances) == 1:
-			print("Updating neighbourhood connections...")
-			self.set_neighbours(1, random_instance.main_ip)
-			random_instance.set_neighbours(1, self.main_ip)
-			self.set_neighbours(2, self.main_ip)
-			random_instance.set_neighbours(2, random_instance.main_ip)
-			print("Neighbourhood updated.")
-		elif len(instances) > 1:
-			print("Updating neighbourhood connections...")
-			right = random_instance.get_neighbour(+1)
-			print(f"Right: {right}")
-			two_doors_right: str = random_instance.get_neighbour(+2)
-			print(f"Two doors right: {two_doors_right}")
-			left = random_instance.get_neighbour(-1)
-			print(f"Left: {two_doors_right}")
-			self.allow_communication([right, two_doors_right, left])
-			self.set_neighbours(-1, random_instance.main_ip)
-			self.set_neighbours(1, right)
-			random_instance.set_neighbours(+2, right)
-			self.set_neighbours(-2, left)
-			self.set_neighbours(+2, two_doors_right)
-			print("Neighbourhood updated.")
+		for new_instance in new_instances:
+			print(f"Allow access from {new_instance.main_ip} to new workers.")
+			threads.append(
+				subprocess.Popen(
+					[
+						"/usr/bin/ssh",
+						"-o",
+						"StrictHostKeyChecking=no",
+						f"root@{new_instance}",
+						" && ".join(
+							f"/usr/sbin/ufw allow from {previous_instance.main_ip}"
+							for previous_instance in previous_instances
+						)
+					]
+				)
+			)
+		if len(previous_instances) == 0:
+			single_thread_instances = new_instances
+			double_thread_instances = single_thread_instances
+			loop_single = 1
+			loop_double = 2
+		elif len(previous_instances) == 1:
+			single_thread_instances = [*new_instances, previous_instances[0]]
+			double_thread_instances = single_thread_instances
+			loop_single = 1
+			loop_double = 2
+		elif len(previous_instances) == 2:
+			single_thread_instances = [
+				previous_instances[-1],
+				*new_instances,
+				previous_instances[0],
+			]
+			double_thread_instances = single_thread_instances
+			loop_single = 0
+			loop_double = 2
+		elif len(previous_instances) == 3:
+			single_thread_instances = [
+				previous_instances[-1],
+				*new_instances,
+				previous_instances[0],
+			]
+			double_thread_instances = [
+				previous_instances[2],
+				*new_instances,
+				previous_instances[0],
+				previous_instances[1],
+			]
+			loop_single = 0
+			loop_double = 1
+		elif len(previous_instances) >= 4:
+			any_previous_instance = random.choice(previous_instances)
+			neighbourhood = [
+				get_neighbour(any_previous_instance.main_ip, -1),
+				any_previous_instance,
+				get_neighbour(any_previous_instance.main_ip, 1),
+				get_neighbour(any_previous_instance.main_ip, 2),
+			]
+			single_thread_instances = [
+				neighbourhood[1],
+				*new_instances,
+				previous_instances[2],
+			]
+			double_thread_instances = [
+				neighbourhood[0],
+				neighbourhood[1],
+				*new_instances,
+				neighbourhood[2],
+				neighbourhood[3],
+			]
+			loop_single = 0
+			loop_double = 0
+		threads: List[subprocess.Popen] = []
+		for i in range(1 - loop_single, len(single_thread_instances)):
+			threads += set_neighbours(
+				single_thread_instances[i - 1],
+				-1,
+				single_thread_instances[i]
+			)
+		for i in range(2 - loop_double, len(double_thread_instances)):
+			threads += set_neighbours(
+				double_thread_instances[(i - 2) % len(double_thread_instances)],
+				-2,
+				double_thread_instances[i]
+			)
+		for thread in threads:
+			thread.wait()	
 
 
 	def run_grobid(self):
