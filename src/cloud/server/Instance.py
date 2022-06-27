@@ -48,6 +48,7 @@ def get_neighbour(host: str, position: int):
 			f"/usr/bin/redis-cli",
 		],
 		stdin=subprocess.PIPE,
+		stdout=subprocess.PIPE,
 	)
 	process.stdin.write(
 		bytes(
