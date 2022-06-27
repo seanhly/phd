@@ -15,23 +15,51 @@ POSITION_KEYS = {
 	+2: "R2",
 }
 
-def set_connection(host: str, position: int, connection: str):
-	for tries in range(3):
-		try:
-			Redis(host=host, socket_timeout=2).set(POSITION_KEYS[position], connection)
-		except TimeoutError:
-			print("Retrying Redis connection...")
+def redis_connection(host: str):
+	Redis(host=host, socket_timeout=2, port=995)
 
-def get_connection(host: str, position: int):
-	for tries in range(3):
-		try:
-			return Redis(host=host, socket_timeout=2).get(POSITION_KEYS[position])
-		except TimeoutError:
-			print("Retrying Redis connection...")
+def set_neighbour(host: str, position: int, neighbour: str):
+	process = subprocess.Popen(
+		[
+			"/usr/bin/ssh",
+			"-o",
+			"StrictHostKeyChecking=no",
+			f"root@{host}",
+			f"/usr/bin/redis-cli",
+		],
+		stdin=subprocess.PIPE,
+	)
+	process.stdin.write(
+		bytes(
+			f"set {POSITION_KEYS[position]} {neighbour}",
+			encoding="utf8"
+		)
+	)
+	process.stdin.close()
+	process.wait()
+
+def get_neighbour(host: str, position: int):
+	process = subprocess.Popen(
+		[
+			"/usr/bin/ssh",
+			"-o",
+			"StrictHostKeyChecking=no",
+			f"root@{host}",
+			f"/usr/bin/redis-cli",
+		],
+		stdin=subprocess.PIPE,
+	)
+	process.stdin.write(
+		bytes(
+			f"get {POSITION_KEYS[position]}",
+			encoding="utf8"
+		)
+	)
+	return process.stdout.read().decode().strip()
 
 def set_neighbours(a: str, position: int, b: str):
-	set_connection(a, position, b)
-	set_connection(b, -position, a)
+	set_neighbour(a, position, b)
+	set_neighbour(b, -position, a)
 
 
 class Instance(Entity):
@@ -85,14 +113,14 @@ class Instance(Entity):
 	def destroy(self):
 		self.vendor.destroy_instance(self.id)
 	
-	def set_connection(self, position: int, connection: str):
-		set_connection(self.main_ip, position, connection)
+	def set_neighbour(self, position: int, connection: str):
+		set_neighbour(self.main_ip, position, connection)
 
 	def set_neighbours(self, position: int, neighbour: str):
 		set_neighbours(self.main_ip, position, neighbour)
 
-	def get_connection(self, position: int):
-		return get_connection(self.main_ip, position)
+	def get_neighbour(self, position: int):
+		return get_neighbour(self.main_ip, position)
 	
 	def allow_communication(self, hosts: List[str]):
 		print(f"Allowing communication between {self.main_ip} and [{', '.join(hosts)}]...")
