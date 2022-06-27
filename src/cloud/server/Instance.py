@@ -95,7 +95,7 @@ class Instance(Entity):
 					"StrictHostKeyChecking=no",
 					f"root@{self.main_ip}",
 					" && ".join(
-						f"/usr/bin/ufw allow {host}"
+						f"/usr/sbin/ufw allow {host}"
 						for host in hosts
 					)
 				]
@@ -110,7 +110,7 @@ class Instance(Entity):
 						"StrictHostKeyChecking=no",
 						f"root@{host}",
 						" && ".join(
-							f"/usr/bin/ufw allow {host}"
+							f"/usr/sbin/ufw allow {host}"
 							for h in (*hosts, self.main_ip)
 							if h != host
 						)
@@ -143,7 +143,6 @@ class Instance(Entity):
 		if len(instances) == 1:
 			instance = instances[0]
 			self.allow_communication([instance.main_ip])
-			left = random_instance.left()
 			print("Updating neighbourhood connections...")
 			self.set_neighbours(1, instance.main_ip)
 			instance.set_neighbours(1, self.main_ip)
