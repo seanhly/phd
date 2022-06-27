@@ -181,22 +181,23 @@ class Instance(Entity):
 				f"{INSTALL_SCRIPT}",
 			]
 		)
+		print("Installed worker software.")
 		remote.wait()
+		if instances:
+			random_instance = random.choice(instances)
+			self.allow_communication([random_instance.main_ip])
 		if len(instances) == 1:
-			instance = instances[0]
-			self.allow_communication([instance.main_ip])
 			print("Updating neighbourhood connections...")
-			self.set_neighbours(1, instance.main_ip)
-			instance.set_neighbours(1, self.main_ip)
+			self.set_neighbours(1, random_instance.main_ip)
+			random_instance.set_neighbours(1, self.main_ip)
 			self.set_neighbours(2, self.main_ip)
-			instance.set_neighbours(2, instance.main_ip)
+			random_instance.set_neighbours(2, random_instance.main_ip)
 			print("Neighbourhood updated.")
 		elif len(instances) > 1:
-			random_instance = random.choice(instances)
 			right = random_instance.get_neighbour(+1)
 			two_doors_right: str = random_instance.get_neighbour(+2)
+			self.allow_communication([right, two_doors_right, left])
 			left = random_instance.get_neighbour(-1)
-			self.allow_communication([random_instance.main_ip, right, two_doors_right, left])
 			print("Updating neighbourhood connections...")
 			self.set_neighbours(-1, random_instance.main_ip)
 			self.set_neighbours(1, right)
