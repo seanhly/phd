@@ -2,7 +2,6 @@ import subprocess
 from typing import List
 import dateparser
 from cloud.server.Entity import Entity
-from cloud.vendors.Vultr import Vultr
 from constants import EXECUTABLE, INSTALL_SCRIPT_URL
 import random
 from redis import Redis
@@ -123,6 +122,7 @@ class Instance(Entity):
 		print("Firewall rules added.")
 	
 	def install(self):
+		from cloud.vendors.Vultr import Vultr
 		instances = [
 			instance
 			for instance in Vultr.list_instances(label="phd")
