@@ -20,6 +20,7 @@ rm -r phd
 ufw allow from ${SSH_CLIENT%% *}
 curl https://raw.githubusercontent.com/seanhly/phd/master/grobid.nginx.conf > /etc/nginx/nginx.conf
 curl https://raw.githubusercontent.com/seanhly/phd/master/transmission.json > /etc/transmission-daemon/settings.json
+curl https://raw.githubusercontent.com/seanhly/phd/master/redis.conf > /etc/redis/redis.conf
 for s in nginx redis-server transmission-daemon; do
 	systemctl enable $s
 	service $s restart
