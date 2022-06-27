@@ -192,9 +192,9 @@ class Instance(Entity):
 			print("Neighbourhood updated.")
 		elif len(instances) > 1:
 			random_instance = random.choice(instances)
-			right = random_instance.left()
+			right = random_instance.get_neighbour(+1)
 			two_doors_right: str = random_instance.get_neighbour(+2)
-			left = random_instance.left()
+			left = random_instance.get_neighbour(-1)
 			self.allow_communication([random_instance.main_ip, right, two_doors_right, left])
 			print("Updating neighbourhood connections...")
 			self.set_neighbours(-1, random_instance.main_ip)
