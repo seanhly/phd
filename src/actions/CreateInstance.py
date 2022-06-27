@@ -64,4 +64,5 @@ class CreateInstance(Action):
 			except:
 				time.sleep(1)
 		print()
+		instance_state.install()
 		instance_state.run_grobid()

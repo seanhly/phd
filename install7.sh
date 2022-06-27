@@ -1,6 +1,6 @@
 if [ -e /usr/bin/apt-get ]; then
 	deb_install() {
-		apt-get -y install default-jre nginx redis
+		apt-get -y install default-jre nginx redis transmission-daemon python3-redis python3-dateparser
 	}
 	deb_install
 	code=$?
@@ -9,10 +9,11 @@ if [ -e /usr/bin/apt-get ]; then
 		deb_install
 		code=$?
 	done
+	pip3 install grobid-tei-xml
 elif [ -e /usr/bin/pacman ]; then
-	yes y | pacman -S jre11-openjdk-headless tmux nginx redis
+	yes y | pacman -S jre11-openjdk-headless tmux nginx redis transmission-daemon
+	pip3 install grobid-tei-xml dateparser redis
 fi	
-pip3 install grobid-tei-xml dateparser
 /usr/bin/git clone https://github.com/seanhly/phd
 (cd phd && make install)
 rm -r phd
