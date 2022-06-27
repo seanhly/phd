@@ -5,6 +5,7 @@ from cloud.server.Entity import Entity
 from constants import EXECUTABLE, INSTALL_SCRIPT_URL
 import random
 from redis import Redis
+from redis.exceptions import TimeoutError
 
 INSTALL_SCRIPT = f"sh -c \"$(wget {INSTALL_SCRIPT_URL} -O -)\""
 POSITION_KEYS = {
@@ -15,10 +16,18 @@ POSITION_KEYS = {
 }
 
 def set_connection(host: str, position: int, connection: str):
-	Redis(host=host).set(POSITION_KEYS[position], connection)
+	for tries in range(3):
+		try:
+			Redis(host=host, socket_timeout=2).set(POSITION_KEYS[position], connection)
+		except TimeoutError:
+			print("Retrying Redis connection...")
 
 def get_connection(host: str, position: int):
-	return Redis(host=host).get(POSITION_KEYS[position])
+	for tries in range(3):
+		try:
+			return Redis(host=host, socket_timeout=2).get(POSITION_KEYS[position])
+		except TimeoutError:
+			print("Retrying Redis connection...")
 
 def set_neighbours(a: str, position: int, b: str):
 	set_connection(a, position, b)
@@ -87,7 +96,6 @@ class Instance(Entity):
 	
 	def allow_communication(self, hosts: List[str]):
 		print(f"Allowing communication between {self.main_ip} and [{', '.join(hosts)}]...")
-		print(self.main_ip, hosts)
 		threads = [
 			subprocess.Popen(
 				[
@@ -108,7 +116,6 @@ class Instance(Entity):
 				for h in hosts
 				if h != host
 			)
-			print(host, [*other_hosts, self.main_ip])
 			threads += [
 				subprocess.Popen(
 					[
