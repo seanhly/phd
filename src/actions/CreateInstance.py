@@ -253,7 +253,7 @@ class CreateInstance(Action):
 			loop_single = 0
 			loop_double = 1
 		elif len(previous_instance_ips) >= 4:
-			any_previous_instance_ip = random.choice(previous_instance_ips)
+			any_previous_instance_ip = random.choice(list(previous_instance_ips))
 			neighbourhood = [
 				get_neighbour(any_previous_instance_ip, -1),
 				any_previous_instance_ip,
