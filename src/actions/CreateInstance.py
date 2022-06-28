@@ -211,7 +211,7 @@ class CreateInstance(Action):
 			i = 0
 			while i < len(new_instance_ips) and not grobid_down:
 				response = get(f"http://{new_instance_ips[i]}/api/isalive")
-				if response.status_code != 200 or (response.content or b"").decode().strip() == "true":
+				if response.status_code != 200 or (response.content or b"").decode().strip() != "true":
 					grobid_down = True
 					time.sleep(1)
 				i += 1
