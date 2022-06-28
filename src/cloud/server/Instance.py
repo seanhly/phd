@@ -1,11 +1,10 @@
 import subprocess
-from typing import List, Set
+from typing import Iterable, List, Optional, Set, Union
 import dateparser
 from cloud.server.Entity import Entity
 from constants import EXECUTABLE, INSTALL_SCRIPT_URL, PHD_PRIVATE_RSA_KEY
 import random
 from redis import Redis
-from redis.exceptions import TimeoutError
 
 INSTALL_SCRIPT = f"sh -c \"$(wget {INSTALL_SCRIPT_URL} -O -)\""
 POSITION_KEYS = {
@@ -28,39 +27,20 @@ def redis_connection(host: str):
 	Redis(host=host, socket_timeout=2, port=995)
 
 def set_neighbour(a: str, position: int, b: str):
-	process = subprocess.Popen(
-		[
-			*SSH_ARGS,
-			f"root@{a}",
-			f"/usr/bin/redis-cli",
-		],
-		stdin=subprocess.PIPE,
+	process = ssh_do(
+		a,
+		"/usr/bin/redis-cli",
+		stdin=f"set {POSITION_KEYS[position]} {b}",
 	)
-	process.stdin.write(
-		bytes(
-			f"set {POSITION_KEYS[position]} {b}",
-			encoding="utf8"
-		)
-	)
-	process.stdin.close()
 
 	return process
 
 def get_neighbour(host: str, position: int):
-	process = subprocess.Popen(
-		[
-			*SSH_ARGS,
-			f"root@{host}",
-			f"/usr/bin/redis-cli",
-		],
-		stdin=subprocess.PIPE,
-		stdout=subprocess.PIPE,
-	)
-	process.stdin.write(
-		bytes(
-			f"get {POSITION_KEYS[position]}",
-			encoding="utf8"
-		)
+	process = ssh_do(
+		host,
+		"/usr/bin/redis-cli",
+		stdin=f"get {POSITION_KEYS[position]}",
+		stdout=True,
 	)
 	return process.stdout.read().decode().strip()
 
@@ -69,6 +49,39 @@ def set_neighbours(a: str, position: int, b: str):
 		set_neighbour(a, position, b),
 		set_neighbour(b, -position, a),
 	]
+
+def ssh_do(
+	host: str,
+	things: Union[Iterable[str], str],
+	threads: Optional[List[subprocess.Popen]],
+	stdin: Optional[Union[Iterable[str], str]] = None,
+	stdout: bool = False
+) -> Optional[subprocess.Popen]:
+	if type(things) == str:
+		cmd = things
+	else:
+		cmd = " && ".join(things)
+	if cmd:
+		kwargs = {}
+		if stdin:
+			kwargs["stdin"] = subprocess.PIPE
+		if stdout:
+			kwargs["stdout"] = subprocess.PIPE
+		p = subprocess.Popen(
+			[*SSH_ARGS, f"root@{host}", cmd],
+			**kwargs
+		)
+		if stdin:
+			if type(stdin) == str:
+				p.stdin.write(bytes(stdin, encoding="utf8"))
+			else:
+				for line in stdin:
+					p.stdin.write(bytes(line, encoding="utf8"))
+			p.stdin.close()
+		if threads:
+			threads.append(p)
+		else:
+			return p
 
 
 class Instance(Entity):
@@ -133,30 +146,14 @@ class Instance(Entity):
 		threads = []
 		for instance in previous_instances:
 			print(f"Allow access to {instance.main_ip} from new workers.")
-			threads.append(
-				subprocess.Popen(
-					[
-						*SSH_ARGS,
-						f"root@{ip}",
-						" && ".join(
-							f"/usr/sbin/ufw allow from {new_instance}"
-							for new_instance in new_instances
-						)
-					]
-				)
-			)
+			ssh_do(instance, (
+				f"/usr/sbin/ufw allow from {new_instance}"
+				for new_instance in new_instances
+			), threads)
 		for ip in new_instances:
 			# General installation of the new worker.
 			print(f"Installing worker software on {ip}.")
-			threads.append(
-				subprocess.Popen(
-					[
-						*SSH_ARGS,
-						f"root@{ip}",
-						f"{INSTALL_SCRIPT}",
-					]
-				)
-			)
+			ssh_do(ip, INSTALL_SCRIPT, threads)
 		for thread in threads:
 			thread.wait()
 		threads = []
@@ -164,36 +161,21 @@ class Instance(Entity):
 		if previous_instances:
 			for new_instance in new_instances:
 				print(f"Allow access from {new_instance} to new workers.")
-				threads.append(
-					subprocess.Popen(
-						[
-							*SSH_ARGS,
-							f"root@{new_instance}",
-							" && ".join(
-								f"/usr/sbin/ufw allow from {previous_instance.main_ip}"
-								for previous_instance in previous_instances
-							)
-						]
-					)
-				)
-		for instance in new_instances:
-			print(f"Allow access to {instance} from other new workers.")
-			other_instances = [
-				i for i in new_instances
-				if i != instance
-			]
-			threads.append(
-				subprocess.Popen(
-					[
-						*SSH_ARGS,
-						f"root@{instance}",
-						" && ".join(
-							f"/usr/sbin/ufw allow from {other_instance}"
-							for other_instance in other_instances
-						)
-					]
-				)
-			)
+				ssh_do(new_instance, (
+					f"/usr/sbin/ufw allow from {previous_instance.main_ip}"
+					for previous_instance in previous_instances
+				), threads)
+		if len(new_instances) > 1:
+			for instance in new_instances:
+				print(f"Allow access to {instance} from other new workers.")
+				other_instances = [
+					i for i in new_instances
+					if i != instance
+				]
+				ssh_do(instance, (
+					f"/usr/sbin/ufw allow from {other_instance}"
+					for other_instance in other_instances
+				), threads)
 		for thread in threads:
 			thread.wait()
 		threads = []
@@ -271,14 +253,8 @@ class Instance(Entity):
 
 	@classmethod
 	def run_grobid(cls, instances: Set[str]):
-		for thread in (
-			subprocess.Popen(
-				[
-					*SSH_ARGS,
-					f"root@{instance}",
-					f"{EXECUTABLE} local-grobid",
-				]
-			)
-			for instance in instances
-		):
+		threads = []
+		for instance in instances:
+			ssh_do(instance, f"{EXECUTABLE} local-grobid", threads)
+		for thread in threads:
 			thread.wait()
