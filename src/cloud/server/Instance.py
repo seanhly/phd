@@ -160,7 +160,7 @@ class Instance(Entity):
 			thread.wait()
 		print("Installed worker software.")
 		for new_instance in new_instances:
-			print(f"Allow access from {new_instance.main_ip} to new workers.")
+			print(f"Allow access from {new_instance} to new workers.")
 			threads.append(
 				subprocess.Popen(
 					[
