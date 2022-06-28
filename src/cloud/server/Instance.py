@@ -191,8 +191,8 @@ class Instance(Entity):
 						"StrictHostKeyChecking=no",
 						f"root@{instance}",
 						" && ".join(
-							f"/usr/sbin/ufw allow from {new_instance}"
-							for i in other_instances
+							f"/usr/sbin/ufw allow from {other_instance}"
+							for other_instance in other_instances
 						)
 					]
 				)
