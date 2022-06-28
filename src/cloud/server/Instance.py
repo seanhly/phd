@@ -35,7 +35,7 @@ def set_neighbour(a: str, position: int, b: str):
 
 	return process
 
-def get_neighbour(host: str, position: int):
+def get_neighbour(host: str, position: int) -> str:
 	process = ssh_do(
 		host,
 		"/usr/bin/redis-cli",
@@ -57,23 +57,15 @@ def ssh_do(
 	stdin: Optional[Union[Iterable[str], str]] = None,
 	stdout: bool = False
 ) -> Optional[subprocess.Popen]:
-	print(
-		"SSH_DO"
-	)
-	print(
-		f"\tHOST: [{host}]"
-	)
-	print(
-		f"\tTHINGS: [{str(things)}]"
-	)
+	# print("SSH_DO")
+	# print(f"\tHOST: [{host}]")
+	# print(f"\tTHINGS: [{str(things)}]")
 	if type(things) == str:
 		cmd = things
 	else:
 		cmd = " && ".join(things)
 	if cmd:
-		print(
-			f"\tCMD: [{cmd}]"
-		)
+		# print(f"\tCMD: [{cmd}]")
 		kwargs = {}
 		if stdin:
 			kwargs["stdin"] = subprocess.PIPE
@@ -198,30 +190,30 @@ class Instance(Entity):
 			loop_single = 1
 			loop_double = 2
 		elif len(previous_instances) == 1:
-			single_thread_instances = [*new_instances, previous_instances[0]]
+			single_thread_instances = [*new_instances, previous_instances[0].main_ip]
 			double_thread_instances = single_thread_instances
 			loop_single = 1
 			loop_double = 2
 		elif len(previous_instances) == 2:
 			single_thread_instances = [
-				previous_instances[-1],
+				previous_instances[-1].main_ip,
 				*new_instances,
-				previous_instances[0],
+				previous_instances[0].main_ip,
 			]
 			double_thread_instances = single_thread_instances
 			loop_single = 0
 			loop_double = 2
 		elif len(previous_instances) == 3:
 			single_thread_instances = [
-				previous_instances[-1],
+				previous_instances[-1].main_ip,
 				*new_instances,
-				previous_instances[0],
+				previous_instances[0].main_ip,
 			]
 			double_thread_instances = [
-				previous_instances[2],
+				previous_instances[2].main_ip,
 				*new_instances,
-				previous_instances[0],
-				previous_instances[1],
+				previous_instances[0].main_ip,
+				previous_instances[1].main_ip,
 			]
 			loop_single = 0
 			loop_double = 1
@@ -229,14 +221,14 @@ class Instance(Entity):
 			any_previous_instance = random.choice(previous_instances)
 			neighbourhood = [
 				get_neighbour(any_previous_instance.main_ip, -1),
-				any_previous_instance,
+				any_previous_instance.main_ip,
 				get_neighbour(any_previous_instance.main_ip, 1),
 				get_neighbour(any_previous_instance.main_ip, 2),
 			]
 			single_thread_instances = [
 				neighbourhood[1],
 				*new_instances,
-				previous_instances[2],
+				neighbourhood[2],
 			]
 			double_thread_instances = [
 				neighbourhood[0],
