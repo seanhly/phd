@@ -178,7 +178,7 @@ class Instance(Entity):
 					)
 				)
 		for instance in new_instances:
-			print(f"Allow access to {instance.main_ip} from new workers.")
+			print(f"Allow access to {instance} from other new workers.")
 			other_instances = [
 				i for i in new_instances
 				if i != instance
