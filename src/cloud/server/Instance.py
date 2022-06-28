@@ -24,6 +24,8 @@ def set_neighbour(a: str, position: int, b: str):
 			"/usr/bin/ssh",
 			"-o",
 			"StrictHostKeyChecking=no",
+			"-o",
+			"PasswordAuthentication=no",
 			f"root@{a}",
 			f"/usr/bin/redis-cli",
 		],
@@ -45,6 +47,8 @@ def get_neighbour(host: str, position: int):
 			"/usr/bin/ssh",
 			"-o",
 			"StrictHostKeyChecking=no",
+			"-o",
+			"PasswordAuthentication=no",
 			f"root@{host}",
 			f"/usr/bin/redis-cli",
 		],
@@ -134,6 +138,8 @@ class Instance(Entity):
 						"/usr/bin/ssh",
 						"-o",
 						"StrictHostKeyChecking=no",
+						"-o",
+						"PasswordAuthentication=no",
 						f"root@{ip}",
 						" && ".join(
 							f"/usr/sbin/ufw allow from {new_instance}"
@@ -151,6 +157,8 @@ class Instance(Entity):
 						"/usr/bin/ssh",
 						"-o",
 						"StrictHostKeyChecking=no",
+						"-o",
+						"PasswordAuthentication=no",
 						f"root@{ip}",
 						f"{INSTALL_SCRIPT}",
 					]
@@ -169,6 +177,8 @@ class Instance(Entity):
 							"/usr/bin/ssh",
 							"-o",
 							"StrictHostKeyChecking=no",
+							"-o",
+							"PasswordAuthentication=no",
 							f"root@{new_instance}",
 							" && ".join(
 								f"/usr/sbin/ufw allow from {previous_instance.main_ip}"
@@ -189,6 +199,8 @@ class Instance(Entity):
 						"/usr/bin/ssh",
 						"-o",
 						"StrictHostKeyChecking=no",
+						"-o",
+						"PasswordAuthentication=no",
 						f"root@{instance}",
 						" && ".join(
 							f"/usr/sbin/ufw allow from {other_instance}"
@@ -280,6 +292,8 @@ class Instance(Entity):
 					"/usr/bin/ssh",
 					"-o",
 					"StrictHostKeyChecking=no",
+					"-o",
+					"PasswordAuthentication=no",
 					f"root@{instance}",
 					f"{EXECUTABLE} local-grobid",
 				]
