@@ -1,15 +1,16 @@
+
 from actions.Action import Action
 from cloud.vendors.Vultr import Vultr
 
 
-class ListOperatingSystems(Action):
+class ListSSHKeys(Action):
 	@classmethod
 	def command(cls) -> str:
-		return "ls-os"
+		return "ls-ssh"
 
 	@classmethod
 	def description(cls):
-		return "List available cloud operating systems"
+		return "List available SSH keys"
 
 	def recognised_options(self):
 		return set()
@@ -24,5 +25,5 @@ class ListOperatingSystems(Action):
 		return []
 	
 	def execute(self) -> None:
-		for os in Vultr.list_operating_systems():
-			print(str(os))
+		for ssh in Vultr.list_ssh_keys():
+			print(str(ssh))

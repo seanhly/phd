@@ -32,12 +32,14 @@ class LocalGrobid(Action):
 	def execute(self) -> None:
 		if not exists(WORKING_DIR):
 			makedirs(WORKING_DIR)
+		print("Unzipping GROBID...")
 		if not exists(GROBID_EXEC_PATH):
 			zipfile.ZipFile(io.BytesIO(requests.get(GROBID_SOURCE).content)).extractall(WORKING_DIR)
 		for path, _, files in walk(GROBID_DIR_PATH):
 			for file in files:
 				file_path = join(path, file)
 				chmod(file_path, 0o700)
+		print("Running GROBID in tmux...")
 		tmux = subprocess.Popen(
 			[
 				"/usr/bin/tmux",
