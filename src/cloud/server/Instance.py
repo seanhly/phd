@@ -71,6 +71,9 @@ def ssh_do(
 	else:
 		cmd = " && ".join(things)
 	if cmd:
+		print(
+			f"\tCMD: [{cmd}]"
+		)
 		kwargs = {}
 		if stdin:
 			kwargs["stdin"] = subprocess.PIPE
@@ -163,6 +166,7 @@ class Instance(Entity):
 			# General installation of the new worker.
 			print(f"Installing worker software on {ip}.")
 			ssh_do(ip, INSTALL_SCRIPT, threads)
+			print(threads)
 		for thread in threads:
 			thread.wait()
 		print("Installed worker software.")
