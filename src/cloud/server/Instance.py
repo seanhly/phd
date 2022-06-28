@@ -2,7 +2,7 @@ import subprocess
 from typing import List, Set
 import dateparser
 from cloud.server.Entity import Entity
-from constants import EXECUTABLE, INSTALL_SCRIPT_URL
+from constants import EXECUTABLE, INSTALL_SCRIPT_URL, PHD_PRIVATE_RSA_KEY
 import random
 from redis import Redis
 from redis.exceptions import TimeoutError
@@ -14,6 +14,15 @@ POSITION_KEYS = {
 	+1: "R",
 	+2: "R2",
 }
+SSH_ARGS = (
+	"/usr/bin/ssh",
+	"-o",
+	"StrictHostKeyChecking=no",
+	"-o",
+	"PasswordAuthentication=no",
+	"-i",
+	PHD_PRIVATE_RSA_KEY,
+)
 
 def redis_connection(host: str):
 	Redis(host=host, socket_timeout=2, port=995)
@@ -21,11 +30,7 @@ def redis_connection(host: str):
 def set_neighbour(a: str, position: int, b: str):
 	process = subprocess.Popen(
 		[
-			"/usr/bin/ssh",
-			"-o",
-			"StrictHostKeyChecking=no",
-			"-o",
-			"PasswordAuthentication=no",
+			*SSH_ARGS,
 			f"root@{a}",
 			f"/usr/bin/redis-cli",
 		],
@@ -44,11 +49,7 @@ def set_neighbour(a: str, position: int, b: str):
 def get_neighbour(host: str, position: int):
 	process = subprocess.Popen(
 		[
-			"/usr/bin/ssh",
-			"-o",
-			"StrictHostKeyChecking=no",
-			"-o",
-			"PasswordAuthentication=no",
+			*SSH_ARGS,
 			f"root@{host}",
 			f"/usr/bin/redis-cli",
 		],
@@ -135,11 +136,7 @@ class Instance(Entity):
 			threads.append(
 				subprocess.Popen(
 					[
-						"/usr/bin/ssh",
-						"-o",
-						"StrictHostKeyChecking=no",
-						"-o",
-						"PasswordAuthentication=no",
+						*SSH_ARGS,
 						f"root@{ip}",
 						" && ".join(
 							f"/usr/sbin/ufw allow from {new_instance}"
@@ -154,11 +151,7 @@ class Instance(Entity):
 			threads.append(
 				subprocess.Popen(
 					[
-						"/usr/bin/ssh",
-						"-o",
-						"StrictHostKeyChecking=no",
-						"-o",
-						"PasswordAuthentication=no",
+						*SSH_ARGS,
 						f"root@{ip}",
 						f"{INSTALL_SCRIPT}",
 					]
@@ -174,11 +167,7 @@ class Instance(Entity):
 				threads.append(
 					subprocess.Popen(
 						[
-							"/usr/bin/ssh",
-							"-o",
-							"StrictHostKeyChecking=no",
-							"-o",
-							"PasswordAuthentication=no",
+							*SSH_ARGS,
 							f"root@{new_instance}",
 							" && ".join(
 								f"/usr/sbin/ufw allow from {previous_instance.main_ip}"
@@ -196,11 +185,7 @@ class Instance(Entity):
 			threads.append(
 				subprocess.Popen(
 					[
-						"/usr/bin/ssh",
-						"-o",
-						"StrictHostKeyChecking=no",
-						"-o",
-						"PasswordAuthentication=no",
+						*SSH_ARGS,
 						f"root@{instance}",
 						" && ".join(
 							f"/usr/sbin/ufw allow from {other_instance}"
@@ -289,11 +274,7 @@ class Instance(Entity):
 		for thread in (
 			subprocess.Popen(
 				[
-					"/usr/bin/ssh",
-					"-o",
-					"StrictHostKeyChecking=no",
-					"-o",
-					"PasswordAuthentication=no",
+					*SSH_ARGS,
 					f"root@{instance}",
 					f"{EXECUTABLE} local-grobid",
 				]
