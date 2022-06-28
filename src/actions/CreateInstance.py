@@ -33,7 +33,7 @@ class CreateInstance(Action):
 	
 	def execute(self) -> None:
 		current_pool = Pool.load(Vultr)
-		count = int(self.query.strip())
+		count = int(self.query.strip()) if self.query else 1
 		previous_instances = Vultr.list_instances(label=POOL_LABEL)
 		new_instances = []
 		for i in range(count):
@@ -90,5 +90,5 @@ class CreateInstance(Action):
 			instance_state.main_ip
 			for instance_state in instance_states
 		])
-		current_pool += new_instances
+		current_pool.add_all(new_instances)
 		current_pool.dump()

@@ -50,12 +50,8 @@ class Pool(Entity):
 			i += 1
 		return removed
 
-	def add(self, instance: Instance):
-		for i in range(len(self.pool)):
-			if self.pool[i].id == id:
-				return False
-		self.pool.append(instance)
-		return True
+	def add_all(self, instances: List[Instance]):
+		self.pool += instances
 
 	def update(self, instances: List[Instance]):
 		self.pool = instances
