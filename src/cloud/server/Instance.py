@@ -146,7 +146,7 @@ class Instance(Entity):
 		threads = []
 		for instance in previous_instances:
 			print(f"Allow access to {instance.main_ip} from new workers.")
-			ssh_do(instance, (
+			ssh_do(instance.main_ip, (
 				f"/usr/sbin/ufw allow from {new_instance}"
 				for new_instance in new_instances
 			), threads)
@@ -156,8 +156,8 @@ class Instance(Entity):
 			ssh_do(ip, INSTALL_SCRIPT, threads)
 		for thread in threads:
 			thread.wait()
-		threads = []
 		print("Installed worker software.")
+		threads = []
 		if previous_instances:
 			for new_instance in new_instances:
 				print(f"Allow access from {new_instance} to new workers.")
