@@ -90,7 +90,7 @@ def ssh_do(
 				for line in stdin:
 					p.stdin.write(bytes(line, encoding="utf8"))
 			p.stdin.close()
-		if threads:
+		if threads is not None:
 			threads.append(p)
 		else:
 			return p
