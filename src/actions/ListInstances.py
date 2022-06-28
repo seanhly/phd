@@ -7,7 +7,7 @@ from constants import POOL_LABEL
 class ListInstances(Action):
 	@classmethod
 	def command(cls) -> str:
-		return "instances"
+		return "ls"
 
 	@classmethod
 	def description(cls):

@@ -53,7 +53,7 @@ def set_neighbours(a: str, position: int, b: str):
 def ssh_do(
 	host: str,
 	things: Union[Iterable[str], str],
-	threads: Optional[List[subprocess.Popen]],
+	threads: Optional[List[subprocess.Popen]] = None,
 	stdin: Optional[Union[Iterable[str], str]] = None,
 	stdout: bool = False
 ) -> Optional[subprocess.Popen]:
