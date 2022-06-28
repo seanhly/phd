@@ -13,7 +13,7 @@ from datetime import datetime
 class CreateInstance(Action):
 	@classmethod
 	def command(cls) -> str:
-		return "create-instance"
+		return "new"
 
 	@classmethod
 	def description(cls):
