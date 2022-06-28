@@ -57,6 +57,15 @@ def ssh_do(
 	stdin: Optional[Union[Iterable[str], str]] = None,
 	stdout: bool = False
 ) -> Optional[subprocess.Popen]:
+	print(
+		"SSH_DO"
+	)
+	print(
+		f"\tHOST: [{host}]"
+	)
+	print(
+		f"\tTHINGS: [{str(things)}]"
+	)
 	if type(things) == str:
 		cmd = things
 	else:
