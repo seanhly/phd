@@ -7,7 +7,7 @@ from constants import POOL_LABEL
 class DestroyInstances(Action):
 	@classmethod
 	def command(cls) -> str:
-		return "destroy-instances"
+		return "rma"
 
 	@classmethod
 	def description(cls):
