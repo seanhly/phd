@@ -2,7 +2,7 @@ if [ -e /usr/bin/apt-get ]; then
 	deb_install() {
 		echo "Installing DEB dependencies..."
 		apt-get -y install default-jre nginx redis transmission-daemon python3-redis python3-dateparser 2>&1 \
-		while read line; do
+		| while read line; do
 			printf "\r                                                                    "
 			printf "\r%s" "$line"
 		done
@@ -19,7 +19,7 @@ if [ -e /usr/bin/apt-get ]; then
 	pip3 install grobid-tei-xml >/dev/null 2>/dev/null
 elif [ -e /usr/bin/pacman ]; then
 	yes y | pacman -S jre11-openjdk-headless tmux nginx redis transmission-daemon \
-	while read line; do
+	| while read line; do
 		printf "\r                                                                    "
 		printf "\r%s" "$line"
 	done
