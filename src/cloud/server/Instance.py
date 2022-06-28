@@ -247,14 +247,18 @@ class Instance(Entity):
 			thread.wait()	
 
 
-	def run_grobid(self):
-		remote = subprocess.Popen(
-			[
-				"/usr/bin/ssh",
-				"-o",
-				"StrictHostKeyChecking=no",
-				f"root@{self.main_ip}",
-				f"{EXECUTABLE} local-grobid",
-			]
-		)
-		remote.wait()
+	@classmethod
+	def run_grobid(cls, instances: Set[str]):
+		for thread in (
+			subprocess.Popen(
+				[
+					"/usr/bin/ssh",
+					"-o",
+					"StrictHostKeyChecking=no",
+					f"root@{instance}",
+					f"{EXECUTABLE} local-grobid",
+				]
+			)
+			for instance in instances
+		):
+			thread.wait()

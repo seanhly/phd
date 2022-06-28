@@ -1,12 +1,13 @@
 from regex import P
 from actions.Action import Action
+from cloud.server.Instance import Instance
 from cloud.server.Pool import Pool
 from cloud.vendors.Vultr import Vultr
 from constants import POOL_LABEL
 import time
 from socket import socket, AF_INET, SOCK_STREAM
 from datetime import datetime
-import traceback
+#import traceback
 
 
 class CreateInstance(Action):
@@ -67,20 +68,27 @@ class CreateInstance(Action):
 		ssh_closed = True
 		while ssh_closed:
 			print(f"\rAwaiting SSH access [{int(datetime.now().timestamp() - start)}s] ", end="")
-			s = socket(AF_INET, SOCK_STREAM)
 			ssh_closed = False
 			i = 0
 			while i < len(instance_states) and not ssh_closed:
 				try:
-					s.connect((instance_states[i].main_ip, 22))
+					address = (instance_states[i].main_ip, 22)
+					#print(address)
+					s = socket(AF_INET, SOCK_STREAM)
+					s.connect(address)
 					s.shutdown(2)
 				except Exception as e:
-					traceback.print_exc()
+					#traceback.print_exc()
 					ssh_closed = True
 					time.sleep(1)
 				i += 1
-		print()
-		instance_state.install()
-		instance_state.run_grobid()
+		Instance.install([
+			instance_state.main_ip
+			for instance_state in instance_states
+		])
+		Instance.run_grobid([
+			instance_state.main_ip
+			for instance_state in instance_states
+		])
 		current_pool += new_instances
 		current_pool.dump()
