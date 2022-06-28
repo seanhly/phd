@@ -158,23 +158,48 @@ class Instance(Entity):
 			)
 		for thread in threads:
 			thread.wait()
+		threads = []
 		print("Installed worker software.")
-		for new_instance in new_instances:
-			print(f"Allow access from {new_instance} to new workers.")
+		if previous_instances:
+			for new_instance in new_instances:
+				print(f"Allow access from {new_instance} to new workers.")
+				threads.append(
+					subprocess.Popen(
+						[
+							"/usr/bin/ssh",
+							"-o",
+							"StrictHostKeyChecking=no",
+							f"root@{new_instance}",
+							" && ".join(
+								f"/usr/sbin/ufw allow from {previous_instance.main_ip}"
+								for previous_instance in previous_instances
+							)
+						]
+					)
+				)
+		for instance in new_instances:
+			print(f"Allow access to {instance.main_ip} from new workers.")
+			other_instances = [
+				i for i in new_instances
+				if i != instance
+			]
 			threads.append(
 				subprocess.Popen(
 					[
 						"/usr/bin/ssh",
 						"-o",
 						"StrictHostKeyChecking=no",
-						f"root@{new_instance}",
+						f"root@{instance}",
 						" && ".join(
-							f"/usr/sbin/ufw allow from {previous_instance.main_ip}"
-							for previous_instance in previous_instances
+							f"/usr/sbin/ufw allow from {new_instance}"
+							for i in other_instances
 						)
 					]
 				)
 			)
+		for thread in threads:
+			thread.wait()
+		threads = []
 		if len(previous_instances) == 0:
 			single_thread_instances = new_instances
 			double_thread_instances = single_thread_instances
