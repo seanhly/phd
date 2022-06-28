@@ -96,7 +96,7 @@ class Vultr(Vendor):
 		return operating_systems
 
 	@classmethod
-	def list_ssh_keys(cls):
+	def list_ssh_keys(cls) -> List[SSHKey]:
 		return list(cls.get(SSHKey, "ssh-key"))
 
 	@classmethod
@@ -136,7 +136,7 @@ class Vultr(Vendor):
 			JSON.loads(subprocess.check_output(
 				[
 					"/usr/bin/curl",
-					'https://api.vultr.com/v2/instances?per_page=500',
+					'https://api.vultr.com/v2/instances',
 					"-X",
 					"POST",
 					"-H",
@@ -162,6 +162,45 @@ class Vultr(Vendor):
 			).decode())["instance"],
 			vendor=cls,
 		)
+
+	@classmethod
+	def create_ssh_key(cls, name: str, ssh_key: str):
+		return SSHKey(
+			JSON.loads(subprocess.check_output(
+				[
+					"/usr/bin/curl",
+					'https://api.vultr.com/v2/ssh-keys',
+					"-X",
+					"POST",
+					"-H",
+					f"Authorization: Bearer {PHD_TOKEN}",
+					"-H",
+					"Content-Type: application/json",
+					"--data",
+					JSON.dumps(dict(name=name, ssh_key=ssh_key)),
+				],
+				stderr=subprocess.DEVNULL
+			).decode())["ssh_key"],
+			vendor=cls,
+		)
+
+	@classmethod
+	def patch_ssh_key(cls, id: str, name: str, ssh_key: str):
+		subprocess.Popen(
+			[
+				"/usr/bin/curl",
+				f"https://api.vultr.com/v2/ssh-keys/{id}",
+				"-X",
+				"PATCH",
+				"-H",
+				f"Authorization: Bearer {PHD_TOKEN}",
+				"-H",
+				"Content-Type: application/json",
+				"--data",
+				JSON.dumps(dict(name=name, ssh_key=ssh_key)),
+			],
+			stderr=subprocess.DEVNULL
+		).wait()
 
 	@classmethod
 	def destroy_instance(cls, id: str):

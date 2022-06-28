@@ -14,3 +14,6 @@ class SSHKey(Entity):
 		self.__dict__ = data
 		self.date_created = int(dateparser.parse(self.date_created).timestamp())
 		self.vendor = vendor
+
+	def __str__(self):
+		return f"{self.id}\t{self.name}\t{self.ssh_key}\t{self.date_created}"

@@ -13,6 +13,7 @@ GROBID_DIR_PATH = join(WORKING_DIR, GROBID_DIR_NAME)
 GROBID_EXEC_PATH = join(GROBID_DIR_PATH, "gradlew")
 
 HOME = environ['HOME']
+USER = environ['USER']
 INPUT_DIR = join(HOME, "Code", "phd", "input")
 PHD_POOL = join(HOME, ".phd_pool.json")
 PHD_NEAREST_SERVER = join(HOME, ".phd_nearest")
