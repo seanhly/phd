@@ -278,13 +278,13 @@ class CreateInstance(Action):
 		for i in range(1 - loop_single, len(single_thread_instances)):
 			threads += set_neighbours(
 				single_thread_instances[i - 1],
-				-1,
+				1,
 				single_thread_instances[i]
 			)
 		for i in range(2 - loop_double, len(double_thread_instances)):
 			threads += set_neighbours(
 				double_thread_instances[(i - 2) % len(double_thread_instances)],
-				-2,
+				2,
 				double_thread_instances[i]
 			)
 		for thread in threads:
