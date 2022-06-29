@@ -117,7 +117,7 @@ class CreateInstance(Action):
 		current_pool = Pool.load(Vultr)
 		count = int(self.query.strip()) if self.query else 1
 		previous_instances = Vultr.list_instances(label=POOL_LABEL)
-		previous_instance_ips = set(i.main_ip for i in previous_instances)
+		previous_instance_ips = [i.main_ip for i in previous_instances]
 		new_instances: List[Instance] = []
 		for i in range(count):
 			new_instances.append(Vultr.create_instance(min_ram=2000))
@@ -143,9 +143,9 @@ class CreateInstance(Action):
 					new_instances[i] = instance_state
 				i += 1
 			time.sleep(1)
-		current_pool.add_all(new_instances)
-		new_instance_ips = list(i.main_ip for i in new_instances)
 		print()
+		current_pool.add_all(new_instances)
+		new_instance_ips = [i.main_ip for i in new_instances]
 		start = datetime.now().timestamp()
 		ssh_closed = True
 		while ssh_closed:
