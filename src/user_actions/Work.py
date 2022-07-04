@@ -32,9 +32,10 @@ class Work(UserAction):
 	def execute(self) -> None:
 		print("Connecting to: ", REDIS_WORK_QUEUES_DB)
 		r = Redis(db=REDIS_WORK_QUEUES_DB)
-		if self.options and "pre-push" in self.options:
-			pre_push_value = self.options["pre-push"]
-			queue = self.options["queue"]
+		if self.options and PRE_PUSH_OPTION in self.options:
+			pre_push_value = self.options[PRE_PUSH_OPTION]
+			queue = self.options[QUEUE_OPTION]
+			print(queue, pre_push_value)
 			r.sadd(queue, pre_push_value)
 		else:
 			queue = None
