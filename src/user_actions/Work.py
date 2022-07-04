@@ -4,6 +4,9 @@ from worker_actions import WorkerAction
 from user_actions import UserAction
 from constants import REDIS_WORK_QUEUES_DB
 
+QUEUE_OPTION = "queue"
+PRE_PUSH_OPTION = "pre-push"
+
 
 class Work(UserAction):
 	@classmethod
@@ -15,10 +18,10 @@ class Work(UserAction):
 		return "Set the node indefinitely working."
 
 	def recognised_options(self):
-		return set()
+		return {QUEUE_OPTION, PRE_PUSH_OPTION}
 
 	def arg_options(self):
-		return set()
+		return {QUEUE_OPTION, PRE_PUSH_OPTION}
 
 	def obligatory_option_groups(self):
 		return []
@@ -28,10 +31,17 @@ class Work(UserAction):
 	
 	def execute(self) -> None:
 		r = Redis(db=REDIS_WORK_QUEUES_DB)
+		if self.options and "pre-push" in self.options:
+			pre_push_value = self.options["pre-push"]
+			queue = self.options["queue"]
+			r.sadd(queue, pre_push_value)
+		else:
+			queue = None
 		work_queues = r.keys()
 		worker_actions: Dict[str, Type[WorkerAction]] = {
 			T.queue_name(): T
 			for T in WorkerAction.__subclasses__()
+			if not queue or queue == T.queue_name() 
 		}
 		for work_queue in map(bytes.decode, work_queues):
 			TheWorkerAction = worker_actions.get(work_queue)

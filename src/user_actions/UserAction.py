@@ -1,6 +1,9 @@
+from subprocess import Popen
 import sys
 from typing import Dict, List, Set, Optional, Type, Tuple
 from abc import ABC, abstractclassmethod, abstractmethod
+from constants import EXECUTABLE
+from util.ssh_do import ssh_do
 
 from arguments.Argument import Argument
 
@@ -73,6 +76,15 @@ class UserAction(ABC):
 	def name(cls) -> str:
 		first_part, *the_rest = cls.command().split("-")
 		return " ".join((first_part.title(), *the_rest))
+
+	@classmethod
+	def remote(cls, host: str, **kwargs) -> Optional[Popen]:
+		return ssh_do(
+			host,
+			f"{EXECUTABLE} {cls.command()}",
+			**kwargs,
+
+		)
 
 	@abstractclassmethod
 	def description(cls) -> str:
