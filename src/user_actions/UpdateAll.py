@@ -1,17 +1,20 @@
-from actions.Action import Action
+from subprocess import Popen
+from typing import List
+from user_actions.UserAction import UserAction
 from cloud.server.Pool import Pool
 from cloud.vendors.Vultr import Vultr
-from constants import POOL_LABEL
+from constants import INSTALL_SCRIPT, POOL_LABEL
+from util.ssh_do import ssh_do
 
 
-class ListInstances(Action):
+class UpdateAll(UserAction):
 	@classmethod
 	def command(cls) -> str:
-		return "ls"
+		return "u"
 
 	@classmethod
 	def description(cls):
-		return "List server instances"
+		return "Update all the deployed instances"
 
 	def recognised_options(self):
 		return set()
@@ -29,5 +32,9 @@ class ListInstances(Action):
 		vendor = Vultr
 		instances = vendor.list_instances(label=POOL_LABEL)
 		Pool.load(vendor).update(instances)
+		threads: List[Popen] = []
 		for i in instances:
-			print(str(i))
+			print(i.main_ip)
+			ssh_do(i.main_ip, INSTALL_SCRIPT, threads)
+		for thread in threads:
+			thread.wait()

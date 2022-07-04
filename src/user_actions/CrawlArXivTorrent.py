@@ -1,4 +1,4 @@
-from actions.Action import Action
+from user_actions.UserAction import UserAction
 from requests import get
 import subprocess
 import re
@@ -17,7 +17,7 @@ STATUS = "Status"
 NAME = "Name"
 
 
-class CrawlArXivTorrent(Action):
+class CrawlArXivTorrent(UserAction):
 	@classmethod
 	def command(cls) -> str:
 		return "crawl-arxiv-torrent"

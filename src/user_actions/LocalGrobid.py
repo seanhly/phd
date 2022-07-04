@@ -1,4 +1,4 @@
-from actions.Action import Action
+from user_actions.UserAction import UserAction
 from constants import GROBID_DIR_PATH, GROBID_EXEC_PATH, GROBID_SOURCE, WORKING_DIR
 from os import makedirs, walk, chmod
 from os.path import exists, join
@@ -8,7 +8,7 @@ import io
 import requests
 
 
-class LocalGrobid(Action):
+class LocalGrobid(UserAction):
 	@classmethod
 	def command(cls) -> str:
 		return "local-grobid"

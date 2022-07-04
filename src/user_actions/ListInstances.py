@@ -1,17 +1,17 @@
-from actions.Action import Action
-from cloud.vendors.Vultr import Vultr
+from user_actions.UserAction import UserAction
 from cloud.server.Pool import Pool
+from cloud.vendors.Vultr import Vultr
 from constants import POOL_LABEL
 
 
-class DestroyInstances(Action):
+class ListInstances(UserAction):
 	@classmethod
 	def command(cls) -> str:
-		return "rma"
+		return "ls"
 
 	@classmethod
 	def description(cls):
-		return "Destroy all server instances"
+		return "List server instances"
 
 	def recognised_options(self):
 		return set()
@@ -26,8 +26,8 @@ class DestroyInstances(Action):
 		return []
 	
 	def execute(self) -> None:
-		current_pool = Pool.load(Vultr)
-		for instance in Vultr.list_instances(label=POOL_LABEL):
-			instance.destroy()
-			current_pool.remove(instance.id)
-		current_pool.dump()
+		vendor = Vultr
+		instances = vendor.list_instances(label=POOL_LABEL)
+		Pool.load(vendor).update(instances)
+		for i in instances:
+			print(str(i))

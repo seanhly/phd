@@ -1,5 +1,5 @@
 from requests import get
-from actions.Action import Action
+from user_actions.UserAction import UserAction
 from cloud.server.Instance import Instance
 from cloud.server.Pool import Pool
 from cloud.vendors.Vultr import Vultr
@@ -8,91 +8,20 @@ import time
 from socket import socket, AF_INET, SOCK_STREAM
 from datetime import datetime
 import subprocess
-from typing import Iterable, List, Optional, Union
-from constants import INSTALL_SCRIPT_URL, PHD_PRIVATE_RSA_KEY
-from redis import Redis
+from typing import List
+from constants import INSTALL_SCRIPT
+from util.ssh_do import ssh_do
+from util.redis import get_neighbour, set_neighbours
 
 import random
-INSTALL_SCRIPT = f"sh -c \"$(wget {INSTALL_SCRIPT_URL} -O -)\""
 POSITION_KEYS = {
 	-2: "L2",
 	-1: "L",
 	+1: "R",
 	+2: "R2",
 }
-SSH_ARGS = (
-	"/usr/bin/ssh",
-	"-o",
-	"StrictHostKeyChecking=no",
-	"-o",
-	"PasswordAuthentication=no",
-	"-i",
-	PHD_PRIVATE_RSA_KEY,
-)
 
-def redis_connection(host: str):
-	Redis(host=host, socket_timeout=2, port=995)
-
-def set_neighbour(a: str, position: int, b: str):
-	process = ssh_do(
-		a,
-		"/usr/bin/redis-cli",
-		stdin=f"set {POSITION_KEYS[position]} {b}",
-	)
-
-	return process
-
-def get_neighbour(host: str, position: int) -> str:
-	process = ssh_do(
-		host,
-		"/usr/bin/redis-cli",
-		stdin=f"get {POSITION_KEYS[position]}",
-		stdout=True,
-	)
-	return process.stdout.read().decode().strip()
-
-def set_neighbours(a: str, position: int, b: str):
-	return [
-		set_neighbour(a, position, b),
-		set_neighbour(b, -position, a),
-	]
-
-def ssh_do(
-	host: str,
-	things: Union[Iterable[str], str],
-	threads: Optional[List[subprocess.Popen]] = None,
-	stdin: Optional[Union[Iterable[str], str]] = None,
-	stdout: bool = False
-) -> Optional[subprocess.Popen]:
-	if type(things) == str:
-		cmd = things
-	else:
-		cmd = " && ".join(things)
-	if cmd:
-		kwargs = {}
-		if stdin:
-			kwargs["stdin"] = subprocess.PIPE
-		if stdout:
-			kwargs["stdout"] = subprocess.PIPE
-		p = subprocess.Popen(
-			[*SSH_ARGS, f"root@{host}", cmd],
-			**kwargs
-		)
-		if stdin:
-			if type(stdin) == str:
-				p.stdin.write(bytes(stdin, encoding="utf8"))
-			else:
-				for line in stdin:
-					p.stdin.write(bytes(line, encoding="utf8"))
-			p.stdin.close()
-		if threads is not None:
-			threads.append(p)
-		else:
-			return p
-
-
-
-class CreateInstance(Action):
+class CreateInstance(UserAction):
 	@classmethod
 	def command(cls) -> str:
 		return "new"
@@ -255,10 +184,10 @@ class CreateInstance(Action):
 		elif len(previous_instance_ips) >= 4:
 			any_previous_instance_ip = random.choice(list(previous_instance_ips))
 			neighbourhood = [
-				get_neighbour(any_previous_instance_ip, -1),
+				get_neighbour(any_previous_instance_ip, -1, firewall=True),
 				any_previous_instance_ip,
-				get_neighbour(any_previous_instance_ip, 1),
-				get_neighbour(any_previous_instance_ip, 2),
+				get_neighbour(any_previous_instance_ip, 1, firewall=True),
+				get_neighbour(any_previous_instance_ip, 2, firewall=True),
 			]
 			single_thread_instances = [
 				neighbourhood[1],
@@ -279,13 +208,15 @@ class CreateInstance(Action):
 			threads += set_neighbours(
 				single_thread_instances[i - 1],
 				1,
-				single_thread_instances[i]
+				single_thread_instances[i],
+				firewall=True,
 			)
 		for i in range(2 - loop_double, len(double_thread_instances)):
 			threads += set_neighbours(
 				double_thread_instances[(i - 2) % len(double_thread_instances)],
 				2,
-				double_thread_instances[i]
+				double_thread_instances[i],
+				firewall=True,
 			)
 		for thread in threads:
 			thread.wait()	

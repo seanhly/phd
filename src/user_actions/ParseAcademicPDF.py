@@ -1,4 +1,4 @@
-from actions.Action import Action
+from user_actions.UserAction import UserAction
 from cloud.server.Pool import Pool
 from cloud.vendors.Vultr import Vultr
 from os.path import exists
@@ -6,7 +6,7 @@ import subprocess
 import grobid_tei_xml
 
 
-class ParseAcademicPDF(Action):
+class ParseAcademicPDF(UserAction):
 	@classmethod
 	def command(cls) -> str:
 		return "parse"

@@ -1,8 +1,8 @@
-from actions.Action import Action
+from user_actions.UserAction import UserAction
 from cloud.vendors.Vultr import Vultr
 
 
-class ListOperatingSystems(Action):
+class ListOperatingSystems(UserAction):
 	@classmethod
 	def command(cls) -> str:
 		return "ls-os"

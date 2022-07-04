@@ -1,16 +1,14 @@
+from user_actions.UserAction import UserAction
+from uuid import getnode
 
-from actions.Action import Action
-from cloud.vendors.Vultr import Vultr
-
-
-class ListSSHKeys(Action):
+class PrintMacAddress(UserAction):
 	@classmethod
 	def command(cls) -> str:
-		return "ls-ssh"
+		return "mac"
 
 	@classmethod
 	def description(cls):
-		return "List available SSH keys"
+		return "Print the instance's mac address."
 
 	def recognised_options(self):
 		return set()
@@ -25,5 +23,4 @@ class ListSSHKeys(Action):
 		return []
 	
 	def execute(self) -> None:
-		for ssh in Vultr.list_ssh_keys():
-			print(str(ssh))
+		print(getnode())

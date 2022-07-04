@@ -5,7 +5,7 @@ from abc import ABC, abstractclassmethod, abstractmethod
 from arguments.Argument import Argument
 
 
-class Action(ABC):
+class UserAction(ABC):
 	_cached_indexed_obligatory_option_groups: Optional[Dict[str, Set[str]]]
 	_cached_indexed_blocking_options: Optional[Dict[str, Set[str]]]
 
@@ -128,15 +128,3 @@ class Action(ABC):
 	@classmethod
 	def to_string(cls) -> str:
 		return f"{cls.name()} ({cls.description()})"
-
-	@classmethod
-	def for_name(cls, name: str) -> Type["Action"]:
-		from actions.LocalGrobid import LocalGrobid
-		from actions.RemoteGrobid import RemoteGrobid
-		actions: List["Action"] = [
-			LocalGrobid,
-			RemoteGrobid,
-		]
-		for a in actions:
-			if a.name() == name:
-				return a

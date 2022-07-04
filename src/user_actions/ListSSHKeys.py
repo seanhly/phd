@@ -1,16 +1,16 @@
-from actions.Action import Action
-from cloud.server.Pool import Pool
+
+from user_actions.UserAction import UserAction
 from cloud.vendors.Vultr import Vultr
 
 
-class RemoteGrobid(Action):
+class ListSSHKeys(UserAction):
 	@classmethod
 	def command(cls) -> str:
-		return "remote-grobid"
+		return "ls-ssh"
 
 	@classmethod
 	def description(cls):
-		return "Run the GROBID server remotely"
+		return "List available SSH keys"
 
 	def recognised_options(self):
 		return set()
@@ -25,5 +25,5 @@ class RemoteGrobid(Action):
 		return []
 	
 	def execute(self) -> None:
-		pool = Pool.load(Vultr)
-		pool.run_grobid()
+		for ssh in Vultr.list_ssh_keys():
+			print(str(ssh))
