@@ -48,14 +48,16 @@ class OptionArgument(Argument):
 					if type(argument) == type(self):
 						print(f"\tOther arg: {self.option}")
 						the_action.missing_argument_for_options.append(self.option)
-					elif type(argument) != the_action.options[self.option]:
-						print(f"\tOther type: {self.option}")
-						current_index += 1
-						the_action.incorrect_argument_type_for_options.append((self.option, argument))
 					else:
 						print(f"\tAll good: {self.option} {argument}")
 						current_index += 1
 						the_action.options[self.option] = argument
+					"""
+					elif type(argument) != the_action.options[self.option]:
+						print(f"\tOther type: {self.option}")
+						current_index += 1
+						the_action.incorrect_argument_type_for_options.append((self.option, argument))
+					"""
 
 		return current_index
 			
