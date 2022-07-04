@@ -34,7 +34,7 @@ class CrawlArchiveOrgTorrentListPage(WorkerAction):
 		if page_ids:
 			return (
 				(self, next_pages),
-				(DistributeArchiveOrgTorrentWork, page_ids),
+				#(DistributeArchiveOrgTorrentWork, page_ids),
 			)
 		else:
 			return ()
