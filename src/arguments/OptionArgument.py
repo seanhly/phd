@@ -34,7 +34,7 @@ class OptionArgument(Argument):
 					argument = arguments[current_index]
 					if type(argument) == type(self):
 						action.missing_argument_for_options.append(self.option)
-					elif type(argument) != action.options()[self.option]:
+					elif type(argument) != action.options[self.option]:
 						current_index += 1
 						action.incorrect_argument_type_for_options.append((self.option, argument))
 					else:
