@@ -38,7 +38,7 @@ class Work(UserAction):
 			r.sadd(queue, pre_push_value)
 		else:
 			queue = None
-		work_queues = r.keys()
+		work_queues = r.keys("*")
 		worker_actions: Dict[str, Type[WorkerAction]] = {
 			T.queue_name(): T
 			for T in WorkerAction.__subclasses__()
