@@ -34,6 +34,7 @@ class UserAction(ABC):
 		self.query_parts = []
 		self.query = None
 		if arguments:
+			print(arguments)
 			i = 0
 			while i < len(arguments):
 				a = arguments[i]
