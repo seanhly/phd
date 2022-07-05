@@ -33,6 +33,7 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 		r = Redis()
 		mac_addresses = r.hmget("mac-addresses", *neighbour_ips)
 		ip_to_mac: Dict[str, int] = {}
+		set_later: Dict[str, int] = {}
 		a = (None, *neighbour_ips)
 		b = (getnode(), *(ma.decode() if ma else None for ma in mac_addresses))
 		for ip, mac in zip(a, b):
@@ -44,7 +45,7 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 						f"http://{ip}/system-info.json"
 					).content.decode()
 				)["mac"]
-				set_later = {}
+				set_later[ip] = mac
 		if set_later:
 			r.hmset("mac-addresses", set_later)
 			ip_to_mac.update(set_later)
