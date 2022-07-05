@@ -37,7 +37,7 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 		print(mac_addresses)
 		a = (None, *neighbour_ips)
 		print(a)
-		b = (getnode(), *(ma.decode() for ma in mac_addresses))
+		b = (getnode(), *(ma.decode() if ma else None for ma in mac_addresses))
 		print(b)
 		for ip, mac in zip(a, b):
 			if mac:
