@@ -33,6 +33,8 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 		r = Redis()
 		mac_addresses = r.hmget("mac-addresses", *neighbour_ips),
 		ip_to_mac: Dict[str, int] = {}
+		print(neighbour_ips)
+		print(mac_addresses)
 		for ip, mac in zip((None, *neighbour_ips), (getnode() *mac_addresses)):
 			if mac:
 				ip_to_mac[ip] = mac
