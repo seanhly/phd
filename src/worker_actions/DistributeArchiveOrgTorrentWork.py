@@ -35,7 +35,12 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 		ip_to_mac: Dict[str, int] = {}
 		set_later: Dict[str, int] = {}
 		a = ("", *neighbour_ips)
-		b = (getnode(), *(ma.decode() if ma else None for ma in mac_addresses))
+		b = (getnode(), *(
+			int(ma.decode().strip())
+			if ma
+			else None
+			for ma in mac_addresses
+		))
 		for ip, mac in zip(a, b):
 			if mac:
 				ip_to_mac[ip] = mac
