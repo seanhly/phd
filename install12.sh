@@ -44,4 +44,5 @@ for s in nginx redis-server transmission-daemon; do
 	systemctl enable $s
 	service $s restart
 done
+phd info.json > /var/www/html/system-info.json
 echo "Done."
