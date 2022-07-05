@@ -31,7 +31,11 @@ class Work(UserAction):
 	
 	def execute(self) -> None:
 		print("Connecting to: ", REDIS_WORK_QUEUES_DB)
-		r = Redis(db=REDIS_WORK_QUEUES_DB)
+		r = Redis(
+			db=REDIS_WORK_QUEUES_DB,
+			host="127.0.0.1",
+			port=6379
+		)
 		if self.options and PRE_PUSH_OPTION in self.options:
 			pre_push_value = self.options[PRE_PUSH_OPTION]
 			queue = self.options[QUEUE_OPTION]

@@ -31,33 +31,21 @@ class OptionArgument(Argument):
 			print(f"Recognised: {self.option}")
 			the_action.options[self.option] = None
 			if self.option in the_action.indexed_obligatory_option_groups():
-				print(f"\tObligatory: {self.option}")
 				for o in the_action.indexed_obligatory_option_groups()[self.option]:
 					del the_action.indexed_obligatory_option_groups()[o]
 			if self.option in the_action.indexed_blocking_options():
-				print(f"\tBlocking: {self.option}")
 				for o in the_action.indexed_blocking_options()[self.option]:
 					the_action.disqualified_options[o] = self.option
 			if self.option in the_action.arg_options():
-				print(f"\tArg option: {self.option}")
 				if current_index >= len(arguments):
-					print(f"\tEOL: {self.option}")
 					the_action.missing_argument_for_options.append(self.option)
 				else:
 					argument = arguments[current_index]
 					if type(argument) == type(self):
-						print(f"\tOther arg: {self.option}")
 						the_action.missing_argument_for_options.append(self.option)
 					else:
-						print(f"\tAll good: {self.option} {argument}")
 						current_index += 1
 						the_action.options[self.option] = argument
-					"""
-					elif type(argument) != the_action.options[self.option]:
-						print(f"\tOther type: {self.option}")
-						current_index += 1
-						the_action.incorrect_argument_type_for_options.append((self.option, argument))
-					"""
 
 		return current_index
 			

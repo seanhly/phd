@@ -16,7 +16,6 @@ class UserAction(ABC):
 	conflicting_options: Dict[str, Set[str]]
 	unrecognised_options: Set[str]
 	missing_argument_for_options: List[str]
-	incorrect_argument_type_for_options: List[Tuple[str, Argument]]
 	query_parts: List[str]
 
 	options: Dict[str, Optional[Argument]]
@@ -26,7 +25,6 @@ class UserAction(ABC):
 		self._cached_indexed_obligatory_option_groups = None
 		self._cached_indexed_blocking_options = None
 		self.missing_argument_for_options = []
-		self.incorrect_argument_type_for_options = []
 		self.disqualified_options = {}
 		self.conflicting_options = {}
 		self.unrecognised_options = set()
