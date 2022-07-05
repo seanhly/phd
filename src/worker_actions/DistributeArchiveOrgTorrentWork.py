@@ -31,7 +31,7 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 		
 
 		r = Redis()
-		mac_addresses = r.hmget("mac-addresses", *neighbour_ips),
+		mac_addresses = r.hmget("mac-addresses", *neighbour_ips)
 		ip_to_mac: Dict[str, int] = {}
 		print(neighbour_ips)
 		print(mac_addresses)
