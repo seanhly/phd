@@ -34,7 +34,7 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 		mac_addresses = r.hmget("mac-addresses", *neighbour_ips)
 		ip_to_mac: Dict[str, int] = {}
 		set_later: Dict[str, int] = {}
-		a = (None, *neighbour_ips)
+		a = ("", *neighbour_ips)
 		b = (getnode(), *(ma.decode() if ma else None for ma in mac_addresses))
 		for ip, mac in zip(a, b):
 			if mac:
