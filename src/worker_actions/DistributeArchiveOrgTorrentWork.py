@@ -6,6 +6,7 @@ from util.redis import get_neighbours
 from redis import Redis
 from constants import REDIS_WORK_QUEUES_DB
 from JSON import JSON
+from uuid import getnode
 
 
 class DistributeArchiveOrgTorrentWork(WorkerAction):
@@ -28,27 +29,31 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 			for host in (None, *neighbour_ips)
 		}
 		
-		mac_addresses = {
-			ip: (
-				mac
-				if mac
-				else JSON.loads(
+
+		r = Redis()
+		mac_addresses = r.hmget("mac-addresses", *neighbour_ips),
+		ip_to_mac: Dict[str, int] = {}
+		for ip, mac in zip((None, *neighbour_ips), (getnode() *mac_addresses)):
+			if mac:
+				ip_to_mac[ip] = mac
+			else:
+				mac = JSON.loads(
 					get(
 						f"http://{ip}/system-info.json"
 					).content.decode()
 				)["mac"]
-			)
-			for ip, mac in zip(
-				neighbour_ips,
-				Redis().hmget("mac-addresses", *neighbour_ips),
-			)
-		}
-		print(mac_addresses)
+				set_later = {}
+		if set_later:
+			r.hmset("mac-addresses", set_later)
+			ip_to_mac.update(set_later)
+		sorted_ips = sorted([(v, k) for k, v in ip_to_mac])
+		print(sorted_ips)
 		all_ids = sorted(set(
 			id
 			for id_set in host_to_ids.values()
 			for id in id_set
 		))
+		print(all_ids)
 
 		return ()
 
