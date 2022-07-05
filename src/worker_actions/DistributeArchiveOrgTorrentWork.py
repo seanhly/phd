@@ -33,12 +33,8 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 		r = Redis()
 		mac_addresses = r.hmget("mac-addresses", *neighbour_ips)
 		ip_to_mac: Dict[str, int] = {}
-		print(neighbour_ips)
-		print(mac_addresses)
 		a = (None, *neighbour_ips)
-		print(a)
 		b = (getnode(), *(ma.decode() if ma else None for ma in mac_addresses))
-		print(b)
 		for ip, mac in zip(a, b):
 			if mac:
 				ip_to_mac[ip] = mac
@@ -52,6 +48,7 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 		if set_later:
 			r.hmset("mac-addresses", set_later)
 			ip_to_mac.update(set_later)
+			print(set_later)
 		sorted_ips = sorted([(v, k) for k, v in ip_to_mac.items()])
 		print(sorted_ips)
 		all_ids = sorted(set(
