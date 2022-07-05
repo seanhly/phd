@@ -60,8 +60,7 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 		if set_later:
 			r.hmset("mac-addresses", set_later)
 			mac_to_ip.update(set_later)
-			print(set_later)
-		mac_to_ip[local_mac]
+		mac_to_ip[local_mac] = ""
 		sorted_ips = sorted(mac_to_ip.items())
 		print(sorted_ips)
 		all_ids = sorted(set(
