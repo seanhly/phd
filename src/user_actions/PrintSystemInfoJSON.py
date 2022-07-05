@@ -1,14 +1,15 @@
 from user_actions.UserAction import UserAction
 from uuid import getnode
+from JSON import JSON
 
-class PrintMacAddress(UserAction):
+class PrintSystemInfoJSON(UserAction):
 	@classmethod
 	def command(cls) -> str:
-		return "mac"
+		return "info.json"
 
 	@classmethod
 	def description(cls):
-		return "Print the instance's mac address."
+		return "Print the instance's system info as JSON."
 
 	def recognised_options(self):
 		return set()
@@ -23,4 +24,6 @@ class PrintMacAddress(UserAction):
 		return []
 	
 	def execute(self) -> None:
-		print(getnode())
+		print(JSON.dumps(dict(
+			mac=getnode()
+		)))

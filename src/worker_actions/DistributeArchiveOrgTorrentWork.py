@@ -1,10 +1,11 @@
-from sys import stdout
 from typing import Dict, Set
+
+from requests import get
 from worker_actions.WorkerAction import WorkerAction
 from util.redis import get_neighbours
 from redis import Redis
 from constants import REDIS_WORK_QUEUES_DB
-from user_actions.PrintMacAddress import PrintMacAddress
+from JSON import JSON
 
 
 class DistributeArchiveOrgTorrentWork(WorkerAction):
@@ -26,8 +27,17 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 			).smembers(DistributeArchiveOrgTorrentWork.queue_name())
 			for host in (None, *neighbour_ips)
 		}
+		
 		mac_addresses = {
-			ip: mac if mac else PrintMacAddress.remote(ip, stdout=True).stdout.read().strip()
+			ip: (
+				mac
+				if mac
+				else JSON.loads(
+					get(
+						f"http://{ip}/system-info.json"
+					).content.decode()
+				)["mac"]
+			)
 			for ip, mac in zip(
 				neighbour_ips,
 				Redis().hmget("mac-addresses", *neighbour_ips),

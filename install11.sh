@@ -29,16 +29,16 @@ elif [ -e /usr/bin/pacman ]; then
 fi	
 echo "Cloning repository..."
 /usr/bin/git clone https://github.com/seanhly/phd >/dev/null 2>/dev/null
+echo "Transferring configs..."
+cat phd/grobid.nginx.conf > /etc/nginx/nginx.conf 2>/dev/null
+cat phd/transmission.json > /etc/transmission-daemon/settings.json 2>/dev/null
+cat phd/redis.conf > /etc/redis/redis.conf 2>/dev/null
 echo "Making..."
 (cd phd && make install) >/dev/null 2>/dev/null
 echo "Clean up..."
 rm -r phd
 echo "Allowing SSH..."
 ufw allow from ${SSH_CLIENT%% *} >/dev/null 2>/dev/null
-echo "Transferring configs..."
-curl -s https://raw.githubusercontent.com/seanhly/phd/master/grobid.nginx.conf > /etc/nginx/nginx.conf 2>/dev/null
-curl -s https://raw.githubusercontent.com/seanhly/phd/master/transmission.json > /etc/transmission-daemon/settings.json 2>/dev/null
-curl -s https://raw.githubusercontent.com/seanhly/phd/master/redis.conf > /etc/redis/redis.conf 2>/dev/null
 for s in nginx redis-server transmission-daemon; do
 	echo "Enabling $s..."
 	systemctl enable $s

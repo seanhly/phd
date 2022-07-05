@@ -41,7 +41,7 @@ class ParseAcademicPDF(UserAction):
 						f"input=@\"{self.query}\"",
 						"-X",
 						"POST",
-						f"http://{grobid_ip}/api/processFulltextDocument",
+						f"http://{grobid_ip}/grobid/api/processFulltextDocument",
 					],
 					stderr=subprocess.DEVNULL
 				).decode()
