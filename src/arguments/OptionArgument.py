@@ -1,4 +1,3 @@
-from typing import Dict, Set
 from arguments.Argument import Argument
 import re
 
@@ -41,11 +40,13 @@ class OptionArgument(Argument):
 					the_action.missing_argument_for_options.append(self.option)
 				else:
 					argument = arguments[current_index]
+					from arguments.OtherArgument import OtherArgument
 					if type(argument) == type(self):
 						the_action.missing_argument_for_options.append(self.option)
-					else:
+					elif type(argument) == OtherArgument:
+						the_argument: OtherArgument = argument
 						current_index += 1
-						the_action.options[self.option] = argument
+						the_action.options[self.option] = the_argument.argument
 
 		return current_index
 			

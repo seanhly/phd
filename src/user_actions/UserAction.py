@@ -18,7 +18,7 @@ class UserAction(ABC):
 	missing_argument_for_options: List[str]
 	query_parts: List[str]
 
-	options: Dict[str, Optional[Argument]]
+	options: Dict[str, Optional[str]]
 	query: Optional[str]
 
 	def __init__(self, arguments: Optional[List[Argument]] = None) -> None:
