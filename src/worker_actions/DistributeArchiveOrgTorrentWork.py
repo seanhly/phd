@@ -35,7 +35,11 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 		ip_to_mac: Dict[str, int] = {}
 		print(neighbour_ips)
 		print(mac_addresses)
-		for ip, mac in zip((None, *neighbour_ips), (getnode() *mac_addresses)):
+		a = (None, *neighbour_ips)
+		print(a)
+		b = (getnode() *mac_addresses)
+		print(b)
+		for ip, mac in zip(a, b):
 			if mac:
 				ip_to_mac[ip] = mac
 			else:
