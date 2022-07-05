@@ -57,10 +57,13 @@ def get_neighbours(host: str = None, firewall = False) -> Dict[int, str]:
 	else:
 		return dict(zip(
 			neighbour_offsets,
-			Redis(
-				host=host,
-				db=REDIS_WORKER_NETWORK_DB,
-			).mget(*position_keys).decode().strip(),
+			[
+				result.decode().strip() if result else None
+				for result in Redis(
+					host=host,
+					db=REDIS_WORKER_NETWORK_DB,
+				).mget(*position_keys)
+			],
 		))
 
 
