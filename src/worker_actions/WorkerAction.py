@@ -24,3 +24,7 @@ class WorkerAction(ABC):
 	@classmethod
 	def to_string(cls) -> str:
 		return f"{cls.name()} ({cls.description()})"
+
+	@abstractclassmethod
+	def one_at_a_time(cls) -> bool:
+		pass

@@ -48,8 +48,11 @@ class Work(UserAction):
 		for work_queue in map(bytes.decode, work_queues):
 			TheWorkerAction = worker_actions.get(work_queue)
 			if TheWorkerAction:
-				work_order = r.spop(work_queue)
-				worker_action = TheWorkerAction(work_order)
+				if TheWorkerAction.one_at_a_time():
+					work_order = r.spop(work_queue)
+					worker_action = TheWorkerAction(work_order)
+				else:
+					worker_action = TheWorkerAction()
 				for NextWorkerAction, orders in worker_action.execute():
 					r.sadd(
 						NextWorkerAction.queue_name(),

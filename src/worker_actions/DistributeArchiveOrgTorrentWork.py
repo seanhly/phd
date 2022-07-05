@@ -41,3 +41,7 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 		))
 
 		return ()
+
+	@classmethod
+	def one_at_a_time(cls) -> bool:
+		False
