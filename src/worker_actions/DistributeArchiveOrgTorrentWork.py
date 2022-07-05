@@ -32,30 +32,37 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 
 		r = Redis()
 		mac_addresses = r.hmget("mac-addresses", *neighbour_ips)
-		ip_to_mac: Dict[str, int] = {}
+		mac_to_ip: Dict[str, int] = {}
 		set_later: Dict[str, int] = {}
-		a = ("", *neighbour_ips)
-		b = (getnode(), *(
-			int(ma.decode().strip())
-			if ma
-			else None
-			for ma in mac_addresses
-		))
-		for ip, mac in zip(a, b):
-			if mac:
-				ip_to_mac[ip] = mac
-			else:
-				mac = JSON.loads(
-					get(
-						f"http://{ip}/system-info.json"
-					).content.decode()
-				)["mac"]
-				set_later[ip] = mac
+		local_mac = getnode()
+		for ip, mac in zip(
+			neighbour_ips,
+			(
+				int(ma.decode().strip())
+				if ma
+				else None
+				for ma in mac_addresses
+			),
+		):
+			# Because when the network is small (<=2), a neighbour could be
+			# the local worker node itself.
+			if mac != local_mac:
+				if mac:
+					mac_to_ip[mac] = ip
+				else:
+					mac = JSON.loads(
+						get(
+							f"http://{ip}/system-info.json"
+						).content.decode()
+					)["mac"]
+					if mac != local_mac:
+						set_later[mac] = ip
 		if set_later:
 			r.hmset("mac-addresses", set_later)
-			ip_to_mac.update(set_later)
+			mac_to_ip.update(set_later)
 			print(set_later)
-		sorted_ips = sorted([(v, k) for k, v in ip_to_mac.items()])
+		mac_to_ip[local_mac]
+		sorted_ips = sorted(mac_to_ip.items())
 		print(sorted_ips)
 		all_ids = sorted(set(
 			id
