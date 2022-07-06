@@ -1,2 +1,4 @@
 from worker_actions.WorkerAction import WorkerAction
 from worker_actions.CrawlArchiveOrgTorrentListPage import CrawlArchiveOrgTorrentListPage
+from worker_actions.DistributeArchiveOrgTorrentWork import DistributeArchiveOrgTorrentWork
+from worker_actions.DummyWork import DummyWork

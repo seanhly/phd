@@ -2,7 +2,7 @@ from typing import Dict, Set
 
 from requests import get
 from worker_actions.WorkerAction import WorkerAction
-from util.redis import get_neighbours
+from util.redis import get_neighbourhood
 from redis import Redis
 from constants import REDIS_WORK_QUEUES_DB
 from JSON import JSON
@@ -19,24 +19,24 @@ class DistributeArchiveOrgTorrentWork(WorkerAction):
 		return "Distribute the archive.org torrent work."
 
 	def execute(self):
-		the_neighbours = get_neighbours()
-		neighbour_ips = sorted(set(the_neighbours.values()))
+		the_neighbourhood = get_neighbourhood()
+		the_neighbours = (ip for ip in the_neighbourhood if ip)
 		host_to_ids: Dict[str, Set[str]] = {
 			host: Redis(
 				host=host,
 				db=REDIS_WORK_QUEUES_DB,
 			).smembers(DistributeArchiveOrgTorrentWork.queue_name())
-			for host in (None, *neighbour_ips)
+			for host in the_neighbourhood
 		}
 		
 
 		r = Redis()
-		mac_addresses = r.hmget("mac-addresses", *neighbour_ips)
+		mac_addresses = r.hmget("mac-addresses", (ip for ip in the_neighbours))
 		mac_to_ip: Dict[str, int] = {}
 		set_later: Dict[str, int] = {}
 		local_mac = getnode()
 		for ip, mac in zip(
-			neighbour_ips,
+			the_neighbours,
 			(
 				int(ma.decode().strip())
 				if ma

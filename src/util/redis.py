@@ -1,4 +1,4 @@
-from typing import Dict, Iterable, Optional
+from typing import Dict, Optional, Set
 from constants import REDIS_WORKER_NETWORK_DB
 from constants import INSTALL_SCRIPT_URL
 from util.ssh_do import ssh_do
@@ -66,6 +66,23 @@ def get_neighbours(host: str = None, firewall = False) -> Dict[int, str]:
 			],
 		))
 
+def get_neighbourhood(host: str = None, firewall = False) -> Set[str]:
+	the_neighbours = get_neighbours(host, firewall)
+	ips = set(the_neighbours.values())
+	if len(ips) == 1:
+		# Single node network
+		return {""}
+	if len(ips) == 2:
+		if the_neighbours[1] == the_neighbours[-1]:
+			# Single edge network
+			return {the_neighbours[1], ""}
+		# Triangle network
+		return {the_neighbours[1], the_neighbours[-1], ""}
+	if len(ips) == 3:
+		# Square network
+		return {the_neighbours[1], the_neighbours[-1], the_neighbours[2], ""}
+	# Pentagonal+ network
+	return {*the_neighbours, ""}
 
 def set_neighbours(a: str, position: int, b: str, firewall = False):
 	return [
