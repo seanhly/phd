@@ -41,4 +41,4 @@ class CrawlArchiveOrgTorrentListPage(WorkerAction):
 
 	@classmethod
 	def one_at_a_time(cls) -> bool:
-		True
+		return True

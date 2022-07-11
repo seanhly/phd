@@ -1,5 +1,6 @@
 from os.path import join, exists
 from os import environ
+from os import makedirs
 
 GITHUB_REPOSITORY = "seanhly/phd"
 GIT_SOURCE = f"https://github.com/{GITHUB_REPOSITORY}"
@@ -19,6 +20,9 @@ PHD_POOL = join(HOME, ".phd_pool.json")
 PHD_NEAREST_SERVER = join(HOME, ".phd_nearest")
 PHD_TOKEN_PATH = join(HOME, ".phd_token")
 PHD_PRIVATE_RSA_KEY = join(HOME, ".phd_rsa")
+PHD_QUEUE_DIR = join(HOME, ".phd_queue")
+if not exists(PHD_QUEUE_DIR):
+	makedirs(PHD_QUEUE_DIR)
 PHD_PUBLIC_RSA_KEY = f"{PHD_PRIVATE_RSA_KEY}.pub"
 PHD_TOKEN = ""
 if exists(PHD_TOKEN_PATH):

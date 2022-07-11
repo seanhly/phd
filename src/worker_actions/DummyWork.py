@@ -20,4 +20,4 @@ class DummyWork(WorkerAction):
 
 	@classmethod
 	def one_at_a_time(cls) -> bool:
-		True
+		return True

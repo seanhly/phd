@@ -66,23 +66,23 @@ def get_neighbours(host: str = None, firewall = False) -> Dict[int, str]:
 			],
 		))
 
-def get_neighbourhood(host: str = None, firewall = False) -> Set[str]:
+def get_neighbourhood(host: str = None, firewall = False) -> Set[Optional[str]]:
 	the_neighbours = get_neighbours(host, firewall)
 	ips = set(the_neighbours.values())
 	if len(ips) == 1:
 		# Single node network
-		return {""}
+		return {None}
 	if len(ips) == 2:
 		if the_neighbours[1] == the_neighbours[-1]:
 			# Single edge network
-			return {the_neighbours[1], ""}
+			return {the_neighbours[1], None}
 		# Triangle network
-		return {the_neighbours[1], the_neighbours[-1], ""}
+		return {the_neighbours[1], the_neighbours[-1], None}
 	if len(ips) == 3:
 		# Square network
-		return {the_neighbours[1], the_neighbours[-1], the_neighbours[2], ""}
+		return {the_neighbours[1], the_neighbours[-1], the_neighbours[2], None}
 	# Pentagonal+ network
-	return {*the_neighbours, ""}
+	return {*the_neighbours.values(), None}
 
 def set_neighbours(a: str, position: int, b: str, firewall = False):
 	return [

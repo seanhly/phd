@@ -51,6 +51,7 @@ class Work(UserAction):
 					worker_action = TheWorkerAction(work_order)
 				else:
 					worker_action = TheWorkerAction()
+				# This is where the magic happens.
 				for NextWorkerAction, orders in worker_action.execute():
 					r.sadd(
 						NextWorkerAction.queue_name(),
