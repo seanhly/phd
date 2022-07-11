@@ -55,7 +55,7 @@ class RedistributeWork(UserAction):
 			for work_queue, TheWorkerAction in worker_actions.items():
 				neighbourhood_queue_lengths[work_queue] = {}
 				total_queue_lengths[work_queue] = 0
-			for relation, connection in neighbourhood_work_queues:
+			for relation, connection in neighbourhood_work_queues.items():
 				for work_queue, TheWorkerAction in worker_actions.items():
 					if TheWorkerAction.one_at_a_time():
 						worker_order_count = connection.hlen(work_queue)
@@ -64,11 +64,13 @@ class RedistributeWork(UserAction):
 							+ worker_order_count
 						)
 						neighbourhood_queue_lengths[work_queue][relation] = worker_order_count
+			"""
 			print(total_queue_lengths)
 			for q, ic in neighbourhood_queue_lengths.items():
 				print("\t", q, ":", total_queue_lengths[q])
 				for relation, c in ic.items():
 					print("\t\t", relation, ":", c)
+			"""
 			for work_queue, total in total_queue_lengths.items():
 				if total > 0:
 					the_neighbourhood_queue_lengths = neighbourhood_queue_lengths[work_queue]
