@@ -3,7 +3,7 @@ from typing import List
 from user_actions.UserAction import UserAction
 from cloud.server.Pool import Pool
 from cloud.vendors.Vultr import Vultr
-from constants import INSTALL_SCRIPT, POOL_LABEL
+from constants import INSTALL_SCRIPT, PHD_LABEL
 from util.ssh_do import ssh_do
 
 
@@ -30,7 +30,7 @@ class UpdateAll(UserAction):
 	
 	def execute(self) -> None:
 		vendor = Vultr
-		instances = vendor.list_instances(label=POOL_LABEL)
+		instances = vendor.list_instances(label=PHD_LABEL)
 		Pool.load(vendor).update(instances)
 		threads: List[Popen] = []
 		for i in instances:

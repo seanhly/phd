@@ -1,9 +1,10 @@
-from subprocess import Popen
+from subprocess import Popen, call
 import sys
-from typing import Dict, List, Set, Optional, Type, Tuple
+from typing import Dict, List, Set, Optional, Type
 from abc import ABC, abstractclassmethod, abstractmethod
-from constants import EXECUTABLE
+from constants import EXECUTABLE, PHD_LABEL
 from util.ssh_do import ssh_do
+from os import environ
 
 from arguments.Argument import Argument
 
@@ -129,6 +130,25 @@ class UserAction(ABC):
 	@abstractmethod
 	def arg_options(self) -> Dict[str, Type[Argument]]:
 		return {}
+
+	def daemon(self) -> bool:
+		return False
+
+	def start(self) -> None:
+		if self.daemon():
+			if environ.get("TMUX"):
+				self.execute()
+			else:
+				call([
+					"/usr/bin/tmux",
+					"new",
+					"-d",
+					"-s",
+					f"{PHD_LABEL}-{self.command()}",
+					f"{EXECUTABLE} {self.command()}",
+				])
+		else:
+			self.execute()
 	
 	# Specific code for each action is placed within this method.
 	@abstractmethod

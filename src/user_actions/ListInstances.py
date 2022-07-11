@@ -1,7 +1,7 @@
 from user_actions.UserAction import UserAction
 from cloud.server.Pool import Pool
 from cloud.vendors.Vultr import Vultr
-from constants import POOL_LABEL
+from constants import PHD_LABEL
 
 
 class ListInstances(UserAction):
@@ -27,7 +27,7 @@ class ListInstances(UserAction):
 	
 	def execute(self) -> None:
 		vendor = Vultr
-		instances = vendor.list_instances(label=POOL_LABEL)
+		instances = vendor.list_instances(label=PHD_LABEL)
 		Pool.load(vendor).update(instances)
 		for i in instances:
 			print(str(i))

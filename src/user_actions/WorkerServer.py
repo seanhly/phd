@@ -24,15 +24,19 @@ class WorkerServer(UserAction):
 
 	def blocking_options(self):
 		return []
+
+	def daemon(self):
+		return True
 	
 	def execute(self) -> None:
 		r = Redis(db=REDIS_WORKER_NETWORK_DB)
 		pubsub = r.pubsub()
-		pubsub.subscribe("user-actions-channel")
+		pubsub.subscribe("worker-server")
 		user_actions: Dict[str, Type[UserAction]] = {
 			T.command(): T
 			for T in UserAction.__subclasses__()
 		}
+		print("Awaiting commands.")
 		for a in pubsub.listen():
 			if a["type"] == "message":
 				queue = a["data"].decode()

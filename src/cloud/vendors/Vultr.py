@@ -10,7 +10,7 @@ from cloud.server.Region import Region
 from cloud.server.SSHKey import SSHKey
 from cloud.server.Entity import Entity
 import re
-from constants import PHD_TOKEN, POOL_LABEL
+from constants import PHD_TOKEN, PHD_LABEL
 from requests import get
 
 
@@ -148,7 +148,7 @@ class Vultr(Vendor):
 						dict(
 							region=region.id,
 							plan=plan.id,
-							label=POOL_LABEL,
+							label=PHD_LABEL,
 							os_id=os.id,
 							backups="disabled",
 							sshkey_id=[sshkey.id],

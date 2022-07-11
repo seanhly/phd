@@ -19,7 +19,7 @@ for T in UserAction.__subclasses__():
 		FoundAction = T
 		break
 if FoundAction:
-	FoundAction(arguments).execute()
+	FoundAction(arguments).start()
 	exit_code = 0
 else:
 	sys.stderr.write(f"unknown sub-command: {action}\n")

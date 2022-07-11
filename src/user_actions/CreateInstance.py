@@ -3,7 +3,7 @@ from user_actions.UserAction import UserAction
 from cloud.server.Instance import Instance
 from cloud.server.Pool import Pool
 from cloud.vendors.Vultr import Vultr
-from constants import EXECUTABLE, POOL_LABEL
+from constants import EXECUTABLE, PHD_LABEL
 import time
 from socket import socket, AF_INET, SOCK_STREAM
 from datetime import datetime
@@ -45,7 +45,7 @@ class CreateInstance(UserAction):
 	def execute(self) -> None:
 		current_pool = Pool.load(Vultr)
 		count = int(self.query.strip()) if self.query else 1
-		previous_instances = Vultr.list_instances(label=POOL_LABEL)
+		previous_instances = Vultr.list_instances(label=PHD_LABEL)
 		previous_instance_ips = [i.main_ip for i in previous_instances]
 		new_instances: List[Instance] = []
 		for i in range(count):

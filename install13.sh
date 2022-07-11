@@ -45,4 +45,6 @@ for s in nginx redis-server transmission-daemon; do
 	service $s restart
 done
 phd info.json > /var/www/html/system-info.json
+echo "Listen for worker network jobs."
+phd worker-server
 echo "Done."
