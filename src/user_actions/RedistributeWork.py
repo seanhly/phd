@@ -126,7 +126,8 @@ class RedistributeWork(UserAction):
 						modified.add(relation)
 		for connection in neighbourhood_lock_queues.values():
 			connection.delete("lock")
-		to_update = {min(modified), max(modified)} - {0}
-		for relation in to_update:
-			host: str = neighbourhood[relation]
-			RedistributeWork.remote(host)
+		if modified:
+			to_update = {min(modified), max(modified)} - {0}
+			for relation in to_update:
+				host: str = neighbourhood[relation]
+				RedistributeWork.remote(host)
