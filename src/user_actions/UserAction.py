@@ -2,7 +2,9 @@ from subprocess import Popen, call
 import sys
 from typing import Dict, List, Set, Optional, Type
 from abc import ABC, abstractclassmethod, abstractmethod
-from constants import EXECUTABLE, PHD_LABEL
+
+from redis import Redis
+from constants import EXECUTABLE, PHD_LABEL, REDIS_WORKER_NETWORK_DB
 from util.ssh_do import ssh_do
 from os import environ
 
@@ -77,7 +79,13 @@ class UserAction(ABC):
 		return " ".join((first_part.title(), *the_rest))
 
 	@classmethod
-	def remote(cls, host: str, **kwargs) -> Optional[Popen]:
+	def remote(cls, host: str):
+		connection = Redis(host=host, db=REDIS_WORKER_NETWORK_DB)
+		from user_actions.WorkerServer import WorkerServer
+		return connection.publish(WorkerServer.command(), cls.command())
+
+	@classmethod
+	def remote_ssh(cls, host: str, **kwargs) -> Optional[Popen]:
 		return ssh_do(
 			host,
 			f"{EXECUTABLE} {cls.command()}",
@@ -139,6 +147,12 @@ class UserAction(ABC):
 			if environ.get("TMUX"):
 				self.execute()
 			else:
+				call([
+					"/usr/bin/tmux",
+					"kill-session",
+					"-t",
+					f"{PHD_LABEL}-{self.command()}",
+				])
 				call([
 					"/usr/bin/tmux",
 					"new",

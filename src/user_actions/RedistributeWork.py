@@ -126,4 +126,4 @@ class RedistributeWork(UserAction):
 		to_update = {min(modified), max(modified)} - {0}
 		for relation in to_update:
 			host: str = neighbourhood[relation]
-			pass
+			RedistributeWork.remote(host)
