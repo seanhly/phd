@@ -41,6 +41,7 @@ COCKROACH_INSTALL_URL = "https://binaries.cockroachdb.com/cockroach-v22.1.4.linu
 COCKROACH_BINARY_NAME = "cockroach"
 COCKROACH_BINARY = join("/usr/local/bin", COCKROACH_BINARY_NAME)
 COCKROACH_PORT = 26257
+COCKROACH_WEB_PORT = 8080
 
 GARAGE_INSTALL_URL = "https://garagehq.deuxfleurs.fr/_releases/v0.7.2.1/x86_64-unknown-linux-musl/garage"
 GARAGE_BINARY_NAME = "garage"

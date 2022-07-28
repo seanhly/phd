@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional, Tuple
 from user_actions.UserAction import UserAction
 from constants import (
-	COCKROACH_BINARY, COCKROACH_BINARY_NAME, COCKROACH_PORT,
+	COCKROACH_BINARY, COCKROACH_BINARY_NAME, COCKROACH_PORT, COCKROACH_WEB_PORT,
 	GARAGE_BINARY, GARAGE_BINARY_NAME, GROBID_DIR_PATH,
 	GROBID_EXEC_PATH,
 	TMUX_BINARY
@@ -36,7 +36,7 @@ class StartWorker(UserAction):
 	def execute(self) -> None:
 		threads: List[Popen] = []
 		from requests import get
-		my_ip = get("http://icanhazip.com").content.decode().strip()
+		my_ip = get("http://ipv4.icanhazip.com").content.decode().strip()
 		common_cockroach_args = ' '.join([
 			"--insecure",
 			f"--advertise-host={my_ip}"
@@ -44,12 +44,6 @@ class StartWorker(UserAction):
 		from util.redis import get_network
 		the_network = get_network()
 		# If we have no neighbours, then we start CockroachDB as a single node.  More nodes can join later.
-		if not the_network:
-			cockroach_cmd = f"{COCKROACH_BINARY} start-single-node {common_cockroach_args}"
-		elif my_ip < min(the_network):
-			cockroach_cmd = f"{COCKROACH_BINARY} start-single-node {common_cockroach_args}"
-		else:
-			cockroach_cmd = f"{COCKROACH_BINARY} start {common_cockroach_args} --join={','.join(the_network)}"
 		if not the_network:
 			print(my_ip, "A")
 			cockroach_cmd = f"{COCKROACH_BINARY} start-single-node {common_cockroach_args}"
@@ -80,6 +74,10 @@ class StartWorker(UserAction):
 						for ip in the_network:
 							try:
 								address = (ip, COCKROACH_PORT)
+								s = socket(AF_INET, SOCK_STREAM)
+								s.connect(address)
+								s.shutdown(2)
+								address = (ip, COCKROACH_WEB_PORT)
 								s = socket(AF_INET, SOCK_STREAM)
 								s.connect(address)
 								s.shutdown(2)
