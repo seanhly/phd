@@ -51,6 +51,7 @@ class StartWorker(UserAction):
 		else:
 			cockroach_cmd = f"{COCKROACH_BINARY} start {common_cockroach_args} --join={','.join(the_network)}"
 		if not the_network:
+			print(my_ip, "A")
 			cockroach_cmd = f"{COCKROACH_BINARY} start-single-node {common_cockroach_args}"
 		else:
 			cockroach_active_on_ips: List[str] = []
@@ -66,10 +67,12 @@ class StartWorker(UserAction):
 				if len(cockroach_active_on_ips) == 3:
 					break
 			if len(cockroach_active_on_ips) > 0:
+				print(my_ip, "B")
 				cockroach_cmd = f"{COCKROACH_BINARY} start {common_cockroach_args} --join={','.join(cockroach_active_on_ips)}"
 			else:
 				lowest_ip = min(min(the_network), my_ip)
 				if lowest_ip == my_ip:
+					print(my_ip, "C")
 					cockroach_cmd = f"{COCKROACH_BINARY} start-single-node {common_cockroach_args}"
 				else:
 					while not(cockroach_active_on_ips):
@@ -85,6 +88,7 @@ class StartWorker(UserAction):
 								pass
 							if len(cockroach_active_on_ips) == 3:
 								break
+					print(my_ip, "D")
 					cockroach_cmd = f"{COCKROACH_BINARY} start {common_cockroach_args} --join={','.join(cockroach_active_on_ips)}"
 		services: Dict[str, Tuple[Optional[str], str]] = {
 			"grobid": (
