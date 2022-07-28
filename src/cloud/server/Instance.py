@@ -1,5 +1,4 @@
 from typing import List
-import dateparser
 from cloud.server.Entity import Entity
 
 
@@ -36,6 +35,7 @@ class Instance(Entity):
 
 	def __init__(self, data, vendor):
 		self.__dict__ = data
+		import dateparser
 		if "date_created" in data and type(data["date_created"]) != int:
 			self.date_created = int(
 				dateparser.parse(data["date_created"]).timestamp()
