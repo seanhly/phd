@@ -1,7 +1,7 @@
 from user_actions.UserAction import UserAction
 from typing import Any, Dict, List, Set, Tuple, Type
 from redis import Redis
-from util.redis import get_neighbourhood
+from util.redis import get_network
 from worker_actions import WorkerAction
 from user_actions import UserAction
 from constants import REDIS_WORK_QUEUES_DB, REDIS_WORKER_NETWORK_DB
