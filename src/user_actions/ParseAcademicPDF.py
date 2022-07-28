@@ -3,7 +3,6 @@ from cloud.server.Pool import Pool
 from cloud.vendors.Vultr import Vultr
 from os.path import exists
 import subprocess
-import grobid_tei_xml
 
 
 class ParseAcademicPDF(UserAction):
@@ -46,5 +45,6 @@ class ParseAcademicPDF(UserAction):
 					stderr=subprocess.DEVNULL
 				).decode()
 				print(tei_str)
+				import grobid_tei_xml
 				tei = grobid_tei_xml.parse_document_xml(tei_str).to_dict()
 				print(tei)
