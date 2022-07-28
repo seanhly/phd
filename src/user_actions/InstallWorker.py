@@ -1,12 +1,12 @@
-from typing import Dict, List, Optional, Tuple
+from typing import List
 from user_actions.UserAction import UserAction
 from time import sleep
 from constants import (
 	APT_GET_BINARY, COCKROACH_BINARY, COCKROACH_BINARY_NAME, COCKROACH_INSTALL_URL,
-	GARAGE_BINARY, GARAGE_BINARY_NAME, GARAGE_INSTALL_URL, GROBID_DIR_PATH,
+	GARAGE_BINARY, GARAGE_INSTALL_URL, GROBID_DIR_PATH,
 	GROBID_EXEC_PATH, GROBID_SOURCE, PACMAN_BINARY, RSYNC_BINARY,
 	SERVICE_BINARY, SSH_CLIENT, SYSTEMCTL_BINARY, TMP_DIR, UFW_BINARY,
-	WORKING_DIR, TMUX_BINARY
+	WORKING_DIR
 )
 from os import makedirs, walk, chmod
 from os.path import exists, join, basename
@@ -18,7 +18,6 @@ from urllib.request import urlopen, Request
 import tarfile
 from re import sub
 from util.wait_then_clear import wait_then_clear
-from socket import socket, AF_INET, SOCK_STREAM
 
 
 class InstallWorker(UserAction):
@@ -28,7 +27,7 @@ class InstallWorker(UserAction):
 
 	@classmethod
 	def description(cls):
-		return "Install/start worker node software."
+		return "Install worker node software."
 
 	def recognised_options(self):
 		return set()
@@ -129,47 +128,3 @@ class InstallWorker(UserAction):
 			with open(GARAGE_BINARY, "wb") as f:
 				f.write(get(GARAGE_INSTALL_URL).content)
 			chmod(GARAGE_BINARY, 0o700)
-		my_ip = get("http://icanhazip.com").content.decode().strip()
-		common_cockroach_args = ' '.join([
-			"--insecure",
-			f"--advertise-host={my_ip}"
-		])
-		from util.redis import get_network
-		the_network = get_network()
-		# If we have no neighbours, then we start CockroachDB as a single node.  More nodes can join later.
-		if not the_network:
-			cockroach_cmd = f"{COCKROACH_BINARY} start-single-node {common_cockroach_args}"
-		else:
-			cockroach_active_on_ips: List[str] = []
-			for ip in the_network:
-				try:
-					address = (ip, 26257)
-					s = socket(AF_INET, SOCK_STREAM)
-					s.connect(address)
-					s.shutdown(2)
-					cockroach_active_on_ips.append(ip)
-				except Exception:
-					pass
-				if len(cockroach_active_on_ips) >= 3:
-					break
-			if len(cockroach_active_on_ips) > 0:
-				cockroach_cmd = f"{COCKROACH_BINARY} start {common_cockroach_args} --join={','.join(cockroach_active_on_ips)}"
-			else:
-				the_network = sorted(the_network)
-				lowest_ip = the_network[0]
-				if lowest_ip == my_ip:
-					cockroach_cmd = f"{COCKROACH_BINARY} start-single-node {common_cockroach_args}"
-				else:
-					cockroach_cmd = f"{COCKROACH_BINARY} start {common_cockroach_args} --join={','.join(cockroach_active_on_ips)}"
-		services: Dict[str, Tuple[Optional[str], str]] = {
-			"grobid": (GROBID_DIR_PATH, f"/usr/bin/sh {GROBID_EXEC_PATH} run"),
-			GARAGE_BINARY_NAME: (None, f"{GARAGE_BINARY} server"),
-			COCKROACH_BINARY_NAME: (None, cockroach_cmd),
-		}
-		print("Running services in TMUX...")
-		for name, (cwd, cmd) in services.items():
-			if call([TMUX_BINARY, "has-session", "-t", name]) != 0:
-				threads.append(Popen([TMUX_BINARY, "new-session", "-d", "-s", name, cmd], cwd=cwd))
-		wait_then_clear(threads)
-		from user_actions.WorkerServer import WorkerServer
-		WorkerServer().start()

@@ -3,6 +3,7 @@ from constants import REDIS_CLI_BINARY, REDIS_WORKER_NETWORK_DB
 from util.ssh_do import ssh_do
 
 def extend_network(host: str, workers: Iterable[str], firewall: bool):
+	workers = set(workers) - {host}
 	if firewall:
 		return ssh_do(
 			host,
@@ -18,6 +19,7 @@ def extend_network(host: str, workers: Iterable[str], firewall: bool):
 		return None
 
 def remove_from_network(host: str, workers: Iterable[str], firewall: bool):
+	workers = set(workers) - {host}
 	if firewall:
 		return ssh_do(
 			host,

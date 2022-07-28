@@ -18,3 +18,4 @@ from user_actions.Whitelist import Whitelist
 from user_actions.NetworkDiskCapacity import NetworkDiskCapacity
 from user_actions.RunGlobally import RunGlobally
 from user_actions.InstallWorker import InstallWorker
+from user_actions.StartWorker import StartWorker

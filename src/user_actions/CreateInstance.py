@@ -1,4 +1,5 @@
 from subprocess import Popen
+from user_actions.StartWorker import StartWorker
 from user_actions.UserAction import UserAction
 from cloud.server.Instance import Instance
 from cloud.server.Pool import Pool
@@ -11,6 +12,7 @@ from typing import List
 from constants import BOOTSTRAP_SCRIPT
 from util.ssh_do import ssh_do
 from util.wait_then_clear import wait_then_clear
+from util.redis import extend_network
 
 class CreateInstance(UserAction):
 	@classmethod
@@ -85,7 +87,7 @@ class CreateInstance(UserAction):
 		threads: List[Popen] = []
 		# Bootstrap a system onto each worker.
 		for new_ip in new_instance_ips:
-			ssh_do(new_ip, BOOTSTRAP_SCRIPT, threads)
+			threads.append(ssh_do(new_ip, BOOTSTRAP_SCRIPT))
 		wait_then_clear(threads)
 		# New workers can now reach pre-existing workers.
 		# <---|
@@ -94,17 +96,13 @@ class CreateInstance(UserAction):
 				f"{UFW_BINARY} allow from {new_ip}"
 				for new_ip in new_instance_ips
 			), threads)
+		set(previous_instance_ips + new_instance_ips)
 		# New workers can now reach each other.
 		# | <-->
 		for new_ip in new_instance_ips:
-			other_ips = [
-				other_ip
-				for other_ip in new_instance_ips
-				if other_ip != new_ip
-			]
 			ssh_do(new_ip, (
-				f"{UFW_BINARY} allow from {other_ip}"
-				for other_ip in other_ips
+				f"{UFW_BINARY} allow from {new_ip}"
+				for new_ip in new_instance_ips
 			), threads)
 		# Pre-existing workers can now reach new workers.
 		# |--->
@@ -113,4 +111,12 @@ class CreateInstance(UserAction):
 				f"{UFW_BINARY} allow from {previous_ip}"
 				for previous_ip in previous_instance_ips
 			), threads)
+		for previous_ip in previous_instance_ips:
+			threads.append(extend_network(previous_ip, new_instance_ips, True))
+		for new_ip in new_instance_ips:
+			threads.append(extend_network(new_ip, new_instance_ips + previous_instance_ips, True))
+		wait_then_clear(threads)
+		# Run each worker.
+		for new_ip in new_instance_ips:
+			threads.append(StartWorker.run_on_host(new_ip))
 		wait_then_clear(threads)
