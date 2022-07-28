@@ -1,6 +1,5 @@
 from os.path import join, exists
-from os import environ
-from os import makedirs
+from os import environ, makedirs
 from subprocess import check_output
 
 GITHUB_REPOSITORY = "seanhly/phd"
@@ -58,11 +57,12 @@ GARAGE_BINARY = join("/usr/local/bin", GARAGE_BINARY_NAME)
 TMP_DIR = "/tmp"
 
 TMUX_BINARY = "/usr/bin/tmux"
-UFW_BINARY = "/usr/bin/ufw"
+UFW_BINARY = "/usr/sbin/ufw"
 RSYNC_BINARY = "/usr/bin/rsync"
 APT_GET_BINARY = "/usr/bin/apt-get"
 PACMAN_BINARY = "/usr/bin/pacman"
 SYSTEMCTL_BINARY = "/usr/bin/systemctl"
 SERVICE_BINARY = "/usr/sbin/service"
+REDIS_CLI_BINARY = "/usr/bin/redis-cli"
 
 SSH_CLIENT = (environ["SSH_CLIENT"] or "").strip().split()[0]

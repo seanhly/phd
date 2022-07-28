@@ -4,7 +4,9 @@ from time import sleep
 from constants import (
 	APT_GET_BINARY, COCKROACH_BINARY, COCKROACH_BINARY_NAME, COCKROACH_INSTALL_URL,
 	GARAGE_BINARY, GARAGE_BINARY_NAME, GARAGE_INSTALL_URL, GROBID_DIR_PATH,
-	GROBID_EXEC_PATH, GROBID_SOURCE, PACMAN_BINARY, RSYNC_BINARY, SERVICE_BINARY, SSH_CLIENT, SYSTEMCTL_BINARY, TMP_DIR, UFW_BINARY, WORKING_DIR, TMUX_BINARY
+	GROBID_EXEC_PATH, GROBID_SOURCE, PACMAN_BINARY, RSYNC_BINARY,
+	SERVICE_BINARY, SSH_CLIENT, SYSTEMCTL_BINARY, TMP_DIR, UFW_BINARY,
+	WORKING_DIR, TMUX_BINARY
 )
 from os import makedirs, walk, chmod
 from os.path import exists, join, basename
@@ -16,8 +18,6 @@ from requests import get
 from urllib.request import urlopen, Request
 from tarfile import open
 from re import sub
-from user_actions.WorkerServer import WorkerServer
-from util.redis import get_neighbours
 from util.wait_then_clear import wait_then_clear
 
 
@@ -128,13 +128,13 @@ class InstallWorker(UserAction):
 			with open(GARAGE_BINARY, "wb") as f:
 				f.write(get(GARAGE_INSTALL_URL).content)
 			chmod(GARAGE_BINARY, 0o700)
-		# TODO: this is not a great solution, but it works for now.
-		neighbours = set(get_neighbours().values())
 		my_ip = get("http://icanhazip.com").content.decode().strip()
 		common_cockroach_args = ' '.join([
 			"--insecure",
 			"--advertise-host={my_ip}"
 		])
+		from util.redis import get_network
+		neighbours = set(get_network().values())
 		# If we have no neighbours, then we start CockroachDB as a single node.  More nodes can join later.
 		if neighbours == {my_ip}:
 			cockroach_cmd = f"{COCKROACH_BINARY} start-single-node {common_cockroach_args}"
@@ -150,4 +150,5 @@ class InstallWorker(UserAction):
 			if call([TMUX_BINARY, "has-session", "-t", name]) != 0:
 				threads.append(Popen([TMUX_BINARY, "new-session", "-d", "-s", name, cmd], cwd=cwd))
 		wait_then_clear(threads)
+		from user_actions.WorkerServer import WorkerServer
 		WorkerServer().start()

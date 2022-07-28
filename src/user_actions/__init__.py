@@ -1,5 +1,4 @@
 from user_actions.UserAction import UserAction
-from user_actions.RunWorkerServices import RunWorkerServices
 from user_actions.RemoteGrobid import RemoteGrobid
 from user_actions.ListOperatingSystems import ListOperatingSystems
 from user_actions.ListInstances import ListInstances
