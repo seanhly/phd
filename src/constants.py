@@ -65,4 +65,4 @@ SYSTEMCTL_BINARY = "/usr/bin/systemctl"
 SERVICE_BINARY = "/usr/sbin/service"
 REDIS_CLI_BINARY = "/usr/bin/redis-cli"
 
-SSH_CLIENT = environ.get("SSH_CLIENT", "").strip().split()[0]
+SSH_CLIENT = environ.get("SSH_CLIENT", "127.0.0.1").strip().split()[0]
