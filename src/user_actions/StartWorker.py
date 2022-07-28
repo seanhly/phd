@@ -1,4 +1,5 @@
 from typing import Dict, List, Optional, Tuple
+from user_actions.ConnectGarageWorkers import ConnectGarageWorkers
 from user_actions.UserAction import UserAction
 from constants import (
 	COCKROACH_BINARY, COCKROACH_BINARY_NAME, COCKROACH_PORT, COCKROACH_WEB_PORT,
@@ -43,50 +44,45 @@ class StartWorker(UserAction):
 		])
 		from util.redis import get_network
 		the_network = get_network()
-		# If we have no neighbours, then we start CockroachDB as a single node.  More nodes can join later.
+		# If we have no neighbours, then we start CockroachDB as a single node.
+		# More nodes can join later.
 		if not the_network:
-			print(my_ip, "A")
 			cockroach_cmd = f"{COCKROACH_BINARY} start-single-node {common_cockroach_args}"
 		else:
 			cockroach_active_on_ips: List[str] = []
 			for ip in the_network:
 				try:
-					address = (ip, COCKROACH_PORT)
-					s = socket(AF_INET, SOCK_STREAM)
-					s.connect(address)
-					s.shutdown(2)
+					for port in (COCKROACH_PORT, COCKROACH_WEB_PORT):
+						address = (ip, port)
+						s = socket(AF_INET, SOCK_STREAM)
+						s.connect(address)
+						s.shutdown(2)
 					cockroach_active_on_ips.append(ip)
 				except Exception:
 					pass
 				if len(cockroach_active_on_ips) == 3:
 					break
 			if len(cockroach_active_on_ips) > 0:
-				print(my_ip, "B")
 				cockroach_cmd = f"{COCKROACH_BINARY} start {common_cockroach_args} --join={','.join(cockroach_active_on_ips)}"
 			else:
 				lowest_ip = min(min(the_network), my_ip)
 				if lowest_ip == my_ip:
-					print(my_ip, "C")
 					cockroach_cmd = f"{COCKROACH_BINARY} start-single-node {common_cockroach_args}"
 				else:
 					while not(cockroach_active_on_ips):
 						time.sleep(0.3)
 						for ip in the_network:
 							try:
-								address = (ip, COCKROACH_PORT)
-								s = socket(AF_INET, SOCK_STREAM)
-								s.connect(address)
-								s.shutdown(2)
-								address = (ip, COCKROACH_WEB_PORT)
-								s = socket(AF_INET, SOCK_STREAM)
-								s.connect(address)
-								s.shutdown(2)
+								for port in (COCKROACH_PORT, COCKROACH_WEB_PORT):
+									address = (ip, port)
+									s = socket(AF_INET, SOCK_STREAM)
+									s.connect(address)
+									s.shutdown(2)
 								cockroach_active_on_ips.append(ip)
 							except Exception:
 								pass
 							if len(cockroach_active_on_ips) == 3:
 								break
-					print(my_ip, "D")
 					cockroach_cmd = f"{COCKROACH_BINARY} start {common_cockroach_args} --join={','.join(cockroach_active_on_ips)}"
 		services: Dict[str, Tuple[Optional[str], str]] = {
 			"grobid": (
@@ -109,3 +105,4 @@ class StartWorker(UserAction):
 		wait_then_clear(threads)
 		from user_actions.WorkerServer import WorkerServer
 		WorkerServer().start()
+		ConnectGarageWorkers().execute()

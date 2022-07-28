@@ -46,6 +46,8 @@ COCKROACH_WEB_PORT = 8080
 GARAGE_INSTALL_URL = "https://garagehq.deuxfleurs.fr/_releases/v0.7.2.1/x86_64-unknown-linux-musl/garage"
 GARAGE_BINARY_NAME = "garage"
 GARAGE_BINARY = join("/usr/local/bin", GARAGE_BINARY_NAME)
+GARAGE_PORT = 3901
+GARAGE_S3_PORT = 3900
 
 TMP_DIR = "/tmp"
 

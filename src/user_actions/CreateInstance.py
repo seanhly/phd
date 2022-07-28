@@ -1,4 +1,5 @@
 from subprocess import Popen
+from user_actions.ConnectGarageWorkers import ConnectGarageWorkers
 from user_actions.StartWorker import StartWorker
 from user_actions.UserAction import UserAction
 from cloud.server.Instance import Instance
