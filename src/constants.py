@@ -33,7 +33,7 @@ EXECUTABLE = f"/usr/bin/{PHD_LABEL}"
 REDIS_WORKER_NETWORK_DB = 0
 REDIS_WORK_QUEUES_DB = 1
 GIT_BINARY = "/usr/bin/git"
-INSTALL_SCRIPT = "install.sh"
+INSTALL_SCRIPT = "bootstrap.sh"
 INSTALL_SCRIPT_URL = f"https://raw.githubusercontent.com/{GITHUB_REPOSITORY}/master/{INSTALL_SCRIPT}"
 BOOTSTRAP_SCRIPT = f"sh -c \"$(wget {INSTALL_SCRIPT_URL} -O -)\""
 
