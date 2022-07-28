@@ -2,7 +2,6 @@ from subprocess import Popen, call
 import sys
 from typing import Dict, List, Set, Optional, Type
 from abc import ABC, abstractclassmethod, abstractmethod
-from redis import Redis
 from constants import EXECUTABLE, PHD_LABEL, REDIS_WORKER_NETWORK_DB
 from util.ssh_do import ssh_do
 from os import environ
@@ -78,6 +77,7 @@ class UserAction(ABC):
 
 	@classmethod
 	def remote(cls, host: str):
+		from redis import Redis
 		connection = Redis(host=host, db=REDIS_WORKER_NETWORK_DB)
 		from user_actions.WorkerServer import WorkerServer
 		return connection.publish(WorkerServer.command(), cls.command())
