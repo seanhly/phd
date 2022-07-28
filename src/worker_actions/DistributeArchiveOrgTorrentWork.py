@@ -2,7 +2,6 @@ from typing import Dict, Set
 
 from requests import get
 from worker_actions.WorkerAction import WorkerAction
-from util.redis import get_neighbourhood
 from redis import Redis
 from constants import REDIS_WORK_QUEUES_DB
 from JSON import JSON
