@@ -18,6 +18,7 @@ from urllib.request import urlopen, Request
 import tarfile
 from re import sub
 from util.wait_then_clear import wait_then_clear
+from socket import socket, AF_INET, SOCK_STREAM
 
 
 class InstallWorker(UserAction):
@@ -131,15 +132,35 @@ class InstallWorker(UserAction):
 		my_ip = get("http://icanhazip.com").content.decode().strip()
 		common_cockroach_args = ' '.join([
 			"--insecure",
-			"--advertise-host={my_ip}"
+			f"--advertise-host={my_ip}"
 		])
 		from util.redis import get_network
-		neighbours = set(get_network().values())
+		the_network = get_network()
 		# If we have no neighbours, then we start CockroachDB as a single node.  More nodes can join later.
-		if neighbours == {my_ip}:
+		if not the_network:
 			cockroach_cmd = f"{COCKROACH_BINARY} start-single-node {common_cockroach_args}"
 		else:
-			cockroach_cmd = f"{COCKROACH_BINARY} start {common_cockroach_args} --join={','.join(neighbours)}"
+			cockroach_active_on_ips: List[str] = []
+			for ip in the_network:
+				try:
+					address = (ip, 26257)
+					s = socket(AF_INET, SOCK_STREAM)
+					s.connect(address)
+					s.shutdown(2)
+					cockroach_active_on_ips.append(ip)
+				except Exception:
+					pass
+				if len(cockroach_active_on_ips) >= 3:
+					break
+			if len(cockroach_active_on_ips) > 0:
+				cockroach_cmd = f"{COCKROACH_BINARY} start {common_cockroach_args} --join={','.join(cockroach_active_on_ips)}"
+			else:
+				the_network = sorted(the_network)
+				lowest_ip = the_network[0]
+				if lowest_ip == my_ip:
+					cockroach_cmd = f"{COCKROACH_BINARY} start-single-node {common_cockroach_args}"
+				else:
+					cockroach_cmd = f"{COCKROACH_BINARY} start {common_cockroach_args} --join={','.join(cockroach_active_on_ips)}"
 		services: Dict[str, Tuple[Optional[str], str]] = {
 			"grobid": (GROBID_DIR_PATH, f"/usr/bin/sh {GROBID_EXEC_PATH} run"),
 			GARAGE_BINARY_NAME: (None, f"{GARAGE_BINARY} server"),

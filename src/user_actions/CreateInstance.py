@@ -19,7 +19,7 @@ class CreateInstance(UserAction):
 
 	@classmethod
 	def description(cls):
-		return "Create an instance"
+		return "Create one or more instances"
 
 	def recognised_options(self):
 		return set()
