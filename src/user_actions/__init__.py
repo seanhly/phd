@@ -17,3 +17,4 @@ from user_actions.ControlPanel import ControlPanel
 from user_actions.Whitelist import Whitelist
 from user_actions.NetworkDiskCapacity import NetworkDiskCapacity
 from user_actions.RunGlobally import RunGlobally
+from user_actions.InstallWorker import InstallWorker
