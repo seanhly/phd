@@ -15,7 +15,7 @@ from subprocess import Popen, call
 from zipfile import ZipFile
 from io import BytesIO
 from urllib.request import urlopen, Request
-from tarfile import open
+from tarfile import open as open_tar
 from re import sub
 from util.wait_then_clear import wait_then_clear
 
@@ -109,7 +109,7 @@ class InstallWorker(UserAction):
 			print("Downloading and untarring CockroachDB...")
 			req = Request(COCKROACH_INSTALL_URL)
 			with urlopen(req) as f:
-				with open(fileobj=f, mode='r|*') as tar:
+				with open_tar(fileobj=f, mode='r|*') as tar:
 					# The tar appears to contain a directory resembling the
 					# final part of the URL.
 					cockroach_extracted_dir_name = sub(
