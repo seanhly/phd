@@ -1,6 +1,5 @@
 from os.path import join, exists
 from os import environ, makedirs
-from subprocess import check_output
 
 GITHUB_REPOSITORY = "seanhly/phd"
 GIT_SOURCE = f"https://github.com/{GITHUB_REPOSITORY}"
@@ -35,15 +34,7 @@ REDIS_WORKER_NETWORK_DB = 0
 REDIS_WORK_QUEUES_DB = 1
 GIT_BINARY = "/usr/bin/git"
 INSTALL_SCRIPT = "install.sh"
-LATEST_INSTALL_SCRIPT_COMMIT = check_output([
-	GIT_BINARY,
-	"log",
-	"-n",
-	"1",
-	"--pretty=format:%H",
-	INSTALL_SCRIPT,
-])
-INSTALL_SCRIPT_URL = f"https://raw.githubusercontent.com/{GITHUB_REPOSITORY}/{LATEST_INSTALL_SCRIPT_COMMIT}/{INSTALL_SCRIPT}"
+INSTALL_SCRIPT_URL = f"https://raw.githubusercontent.com/{GITHUB_REPOSITORY}/master/{INSTALL_SCRIPT}"
 BOOTSTRAP_SCRIPT = f"sh -c \"$(wget {INSTALL_SCRIPT_URL} -O -)\""
 
 COCKROACH_INSTALL_URL = "https://binaries.cockroachdb.com/cockroach-v22.1.4.linux-amd64.tgz"
