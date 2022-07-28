@@ -1,6 +1,5 @@
 import subprocess
-from typing import Iterable, List, Optional, Set, Type
-
+from typing import List, Optional, Set, Type
 from JSON import JSON
 from cloud.Vendor import Vendor
 from cloud.server.Instance import Instance
@@ -100,7 +99,7 @@ class Vultr(Vendor):
 		return list(cls.get(SSHKey, "ssh-key"))
 
 	@classmethod
-	def list_instances(cls, label: Optional[str] = None) -> List[Instance]:
+	def list_instances(cls, label: str = "phd") -> List[Instance]:
 		return [
 			i
 			for i in cls.get(Instance, "instance")

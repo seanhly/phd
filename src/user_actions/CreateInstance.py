@@ -1,15 +1,15 @@
 from requests import get
+from user_actions.RunWorkerServices import RunWorkerServices
 from user_actions.UserAction import UserAction
 from cloud.server.Instance import Instance
 from cloud.server.Pool import Pool
 from cloud.vendors.Vultr import Vultr
-from constants import EXECUTABLE, PHD_LABEL
+from constants import PHD_LABEL
 import time
 from socket import socket, AF_INET, SOCK_STREAM
 from datetime import datetime
-import subprocess
 from typing import List
-from constants import INSTALL_SCRIPT
+from constants import BOOTSTRAP_SCRIPT
 from util.ssh_do import ssh_do
 from util.redis import get_neighbour, set_neighbours
 
@@ -45,8 +45,7 @@ class CreateInstance(UserAction):
 	def execute(self) -> None:
 		current_pool = Pool.load(Vultr)
 		count = int(self.query.strip()) if self.query else 1
-		previous_instances = Vultr.list_instances(label=PHD_LABEL)
-		previous_instance_ips = [i.main_ip for i in previous_instances]
+		previous_instance_ips = [i.main_ip for i in Vultr.list_instances(label=PHD_LABEL)]
 		new_instances: List[Instance] = []
 		for i in range(count):
 			new_instances.append(Vultr.create_instance(min_ram=2000))
@@ -93,59 +92,17 @@ class CreateInstance(UserAction):
 				i += 1
 		print()
 		threads = []
-		for ip in previous_instance_ips:
-			print(f"Allow access to {ip} from new workers.")
-			ssh_do(ip, (
+		for previous_ip in previous_instance_ips:
+			print(f"Allow access from {previous_ip} to new workers.")
+			ssh_do(previous_ip, (
 				f"/usr/sbin/ufw allow from {new_ip}"
 				for new_ip in new_instance_ips
 			), threads)
-		for ip in new_instance_ips:
-			print(f"Installing worker software on {ip}.")
-			ssh_do(ip, INSTALL_SCRIPT, threads)
+		for new_ip in new_instance_ips:
+			print(f"Installing worker software on {new_ip}.")
+			ssh_do(new_ip, BOOTSTRAP_SCRIPT, threads)
 		for thread in threads:
 			thread.wait()
-		print("Installed worker software.")
-		threads = []
-		for ip in new_instance_ips:
-			ssh_do(ip, f"{EXECUTABLE} local-grobid", threads)
-		for thread in threads:
-			thread.wait()
-		threads = []
-		if previous_instance_ips:
-			for ip in new_instance_ips:
-				print(f"Allow access from {ip} to new workers.")
-				ssh_do(ip, (
-					f"/usr/sbin/ufw allow from {previous_ip}"
-					for previous_ip in previous_instance_ips
-				), threads)
-		if len(new_instance_ips) > 1:
-			for ip in new_instance_ips:
-				print(f"Allow access to {ip} from other new workers.")
-				other_ips = [
-					other_ip
-					for other_ip in new_instance_ips
-					if other_ip != ip 
-				]
-				ssh_do(ip, (
-					f"/usr/sbin/ufw allow from {other_instance}"
-					for other_instance in other_ips
-				), threads)
-		for thread in threads:
-			thread.wait()
-		grobid_down = True
-		start = datetime.now().timestamp()
-		while grobid_down:
-			print(f"\rAwaiting GROBID access [{int(datetime.now().timestamp() - start)}s] ", end="")
-			grobid_down = False
-			i = 0
-			while i < len(new_instance_ips) and not grobid_down:
-				response = get(f"http://{new_instance_ips[i]}/grobid/api/isalive")
-				if response.status_code != 200 or (response.content or b"").decode().strip() != "true":
-					grobid_down = True
-					time.sleep(1)
-				i += 1
-		print()
-		threads = []
 		single_thread_instances: List[str]
 		double_thread_instances: List[str]
 		if len(previous_instance_ips) == 0:
@@ -203,7 +160,7 @@ class CreateInstance(UserAction):
 			]
 			loop_single = 0
 			loop_double = 0
-		threads: List[subprocess.Popen] = []
+		threads = []
 		for i in range(1 - loop_single, len(single_thread_instances)):
 			threads += set_neighbours(
 				single_thread_instances[i - 1],
@@ -220,4 +177,42 @@ class CreateInstance(UserAction):
 			)
 		for thread in threads:
 			thread.wait()	
+		print("Installed worker software.")
+		threads = []
+		for new_ip in new_instance_ips:
+			RunWorkerServices.run_on_host(new_ip, threads=threads)
+		for thread in threads:
+			thread.wait()
+		threads = []
+		for new_ip in new_instance_ips:
+			print(f"Allow access from {new_ip} to previous workers.")
+			ssh_do(new_ip, (
+				f"/usr/sbin/ufw allow from {previous_ip}"
+				for previous_ip in previous_instance_ips
+			), threads)
+			print(f"Allow access from {new_ip} to other new workers.")
+			other_ips = [
+				other_ip
+				for other_ip in new_instance_ips
+				if other_ip != new_ip
+			]
+			ssh_do(new_ip, (
+				f"/usr/sbin/ufw allow from {other_ip}"
+				for other_ip in other_ips
+			), threads)
+		for thread in threads:
+			thread.wait()
+		grobid_down = True
+		start = datetime.now().timestamp()
+		while grobid_down:
+			print(f"\rAwaiting GROBID access [{int(datetime.now().timestamp() - start)}s] ", end="")
+			grobid_down = False
+			i = 0
+			while i < len(new_instance_ips) and not grobid_down:
+				response = get(f"http://{new_instance_ips[i]}/grobid/api/isalive")
+				if response.status_code != 200 or (response.content or b"").decode().strip() != "true":
+					grobid_down = True
+					time.sleep(1)
+				i += 1
+		print()
 		current_pool.dump()

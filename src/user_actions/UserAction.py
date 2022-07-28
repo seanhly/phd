@@ -85,12 +85,11 @@ class UserAction(ABC):
 		return connection.publish(WorkerServer.command(), cls.command())
 
 	@classmethod
-	def remote_ssh(cls, host: str, **kwargs) -> Optional[Popen]:
+	def run_on_host(cls, host: str, **kwargs) -> Optional[Popen]:
 		return ssh_do(
 			host,
 			f"{EXECUTABLE} {cls.command()}",
 			**kwargs,
-
 		)
 
 	@abstractclassmethod

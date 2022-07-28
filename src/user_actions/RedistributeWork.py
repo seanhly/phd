@@ -1,5 +1,5 @@
 from user_actions.UserAction import UserAction
-from typing import Dict, Optional, Set, Type
+from typing import Any, Dict, List, Set, Tuple, Type
 from redis import Redis
 from util.redis import get_neighbourhood
 from worker_actions import WorkerAction
@@ -41,14 +41,12 @@ class RedistributeWork(UserAction):
 		neighbourhood_work_queues: Dict[int, Redis] = {}
 		neighbourhood_lock_queues: Dict[int, Redis] = {}
 		neighbourhood = get_neighbourhood()
-		print(neighbourhood)
 		for relation, host in neighbourhood.items():
 			lock_queue = Redis(db=REDIS_WORKER_NETWORK_DB, host=host)
 			if lock_queue.set("lock", mac_id, ex=300, nx=True):
 				neighbourhood_lock_queues[relation] = lock_queue
 				neighbourhood_work_queues[relation] = Redis(db=REDIS_WORK_QUEUES_DB, host=host)
 		modified: Set[int] = set()
-		print("Neighbours:", len(neighbourhood_work_queues))
 		if len(neighbourhood_work_queues) >= 2:
 			total_queue_lengths: Dict[str, int] = {}
 			neighbourhood_queue_lengths: Dict[str, Dict[int, int]] = {}
@@ -64,13 +62,6 @@ class RedistributeWork(UserAction):
 							+ worker_order_count
 						)
 						neighbourhood_queue_lengths[work_queue][relation] = worker_order_count
-			"""
-			print(total_queue_lengths)
-			for q, ic in neighbourhood_queue_lengths.items():
-				print("\t", q, ":", total_queue_lengths[q])
-				for relation, c in ic.items():
-					print("\t\t", relation, ":", c)
-			"""
 			for work_queue, total in total_queue_lengths.items():
 				if total > 0:
 					the_neighbourhood_queue_lengths = neighbourhood_queue_lengths[work_queue]
@@ -79,8 +70,6 @@ class RedistributeWork(UserAction):
 					max_orders_per_node = min_orders_per_node + 1
 					nodes_with_one_added_order = total % l
 					nodes_with_one_less_order = (l - nodes_with_one_added_order)
-					print("nodes_with_one_added_order :: ", nodes_with_one_added_order)
-					print("nodes_with_one_less_order :: ", nodes_with_one_less_order)
 					for relation, orders in list(the_neighbourhood_queue_lengths.items()):
 						if orders == min_orders_per_node:
 							if nodes_with_one_less_order:
@@ -90,12 +79,8 @@ class RedistributeWork(UserAction):
 							if nodes_with_one_added_order:
 								nodes_with_one_added_order -= 1
 								del the_neighbourhood_queue_lengths[relation]
-					# change size needed => [
-					#     receive (-): [ip, bool: whether change would make node hard-worker]
-					#     give (+): [ip, bool: whether change would make node hard-worker]
-					# ]
 					changes_needed: Dict[str, int] = {}
-					order_pool = []
+					order_pool: List[Tuple[str, Any, int]] = []
 					for relation, orders in the_neighbourhood_queue_lengths.items():
 						if nodes_with_one_added_order:
 							changes = max_orders_per_node - orders
@@ -107,22 +92,23 @@ class RedistributeWork(UserAction):
 							changes_needed[relation] = changes
 						else:
 							connection = neighbourhood_work_queues[relation]
-							for job, metadata in connection.hscan_iter(name=work_queue):
+							for raw_job, raw_metadata in connection.hscan_iter(name=work_queue):
 								connection.hdel(work_queue, job)
-								order_pool.append((job, metadata))
+								order_pool.append((
+									raw_job.decode(),
+									raw_metadata.decode(),
+									relation
+								))
 								changes += 1
 								if changes == 0:
 									break
 							modified.add(relation)
-					print(changes_needed)
 					for relation, changes in changes_needed.items():
-						to_add = []
+						jobs = {}
 						for _ in range(changes):
-							to_add.append(order_pool.pop())
-						neighbourhood_work_queues[relation].hmset(work_queue, {
-							job.decode(): metadata.decode()
-							for job, metadata in to_add
-						})
+							job, payload, relation = order_pool.pop()
+							jobs[job] = payload
+						neighbourhood_work_queues[relation].hmset(work_queue, jobs)
 						modified.add(relation)
 		for connection in neighbourhood_lock_queues.values():
 			connection.delete("lock")

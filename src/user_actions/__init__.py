@@ -1,5 +1,5 @@
 from user_actions.UserAction import UserAction
-from user_actions.LocalGrobid import LocalGrobid
+from user_actions.RunWorkerServices import RunWorkerServices
 from user_actions.RemoteGrobid import RemoteGrobid
 from user_actions.ListOperatingSystems import ListOperatingSystems
 from user_actions.ListInstances import ListInstances
@@ -14,4 +14,8 @@ from user_actions.RedistributeWork import RedistributeWork
 from user_actions.PrintSystemInfoJSON import PrintSystemInfoJSON
 from user_actions.UpdateAll import UpdateAll
 from user_actions.WorkerServer import WorkerServer
-from user_actions.ParseSemanticScholarFullPaperData import ParseSemanticScholarFullPaperData
+from user_actions.DistributeSemanticScholarCorpus import DistributeSemanticScholarCorpus
+from user_actions.ControlPanel import ControlPanel
+from user_actions.Whitelist import Whitelist
+from user_actions.NetworkDiskCapacity import NetworkDiskCapacity
+from user_actions.RunGlobally import RunGlobally

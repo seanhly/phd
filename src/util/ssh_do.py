@@ -30,16 +30,14 @@ def ssh_do(
 			kwargs["stdin"] = subprocess.PIPE
 		if stdout:
 			kwargs["stdout"] = subprocess.PIPE
-		p = subprocess.Popen(
-			[*SSH_ARGS, f"root@{host}", cmd],
-			**kwargs
-		)
+		args = [*SSH_ARGS, f"root@{host}", cmd]
+		p = subprocess.Popen(args, **kwargs)
 		if stdin:
 			if type(stdin) == str:
 				p.stdin.write(bytes(stdin, encoding="utf8"))
 			else:
 				for line in stdin:
-					p.stdin.write(bytes(line, encoding="utf8"))
+					p.stdin.write(bytes(f"{line}\n", encoding="utf8"))
 			p.stdin.close()
 		if threads is not None:
 			threads.append(p)
