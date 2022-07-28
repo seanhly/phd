@@ -1,5 +1,4 @@
 from typing import Dict, Type
-from redis import Redis
 from user_actions import UserAction
 from constants import REDIS_WORKER_NETWORK_DB
 
@@ -29,6 +28,7 @@ class WorkerServer(UserAction):
 		return True
 	
 	def execute(self) -> None:
+		from redis import Redis
 		r = Redis(db=REDIS_WORKER_NETWORK_DB)
 		pubsub = r.pubsub()
 		pubsub.subscribe("worker-server")

@@ -1,5 +1,4 @@
 from user_actions.UserAction import UserAction
-from requests import get
 import subprocess
 import re
 from os import unlink
@@ -44,6 +43,7 @@ class CrawlArXivTorrent(UserAction):
 			torrent_url = f"https://archive.org/download/{id}/{id}_archive.torrent"
 			print(torrent_url)
 			torrent_file_path = "torrent.torrent"
+			from requests import get
 			with open(torrent_file_path, "wb") as torrent_file:
 				torrent_file.write(get(torrent_url).content)
 			output = subprocess.run(

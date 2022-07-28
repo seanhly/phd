@@ -14,7 +14,6 @@ from shutil import move, rmtree
 from subprocess import Popen, call
 from zipfile import ZipFile
 from io import BytesIO
-from requests import get
 from urllib.request import urlopen, Request
 from tarfile import open
 from re import sub
@@ -93,6 +92,7 @@ class InstallWorker(UserAction):
 		wait_then_clear(threads)
 		if not exists(WORKING_DIR):
 			makedirs(WORKING_DIR)
+		from requests import get
 		if not exists(GROBID_EXEC_PATH):
 			print("Downloading and unzipping GROBID...")
 			ZipFile(

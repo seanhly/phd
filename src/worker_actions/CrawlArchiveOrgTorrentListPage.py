@@ -1,7 +1,4 @@
-from requests import get
 import re
-from worker_actions.DistributeArchiveOrgTorrentWork import DistributeArchiveOrgTorrentWork
-
 from worker_actions.WorkerAction import WorkerAction
 
 
@@ -21,6 +18,7 @@ class CrawlArchiveOrgTorrentListPage(WorkerAction):
 
 	def execute(self):
 		page_url = f"https://archive.org/details/arxiv-bulk?page={self.page}"
+		from requests import get
 		page_content = get(page_url).content.decode()
 		page_ids = set(
 			link[len('"/details/'):-1]

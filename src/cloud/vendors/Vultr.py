@@ -10,7 +10,6 @@ from cloud.server.SSHKey import SSHKey
 from cloud.server.Entity import Entity
 import re
 from constants import PHD_TOKEN, PHD_LABEL
-from requests import get
 
 
 def lowest_cost_per_disk(plan: Plan):
@@ -39,6 +38,7 @@ class Vultr(Vendor):
 		else:
 			suffix = "?per_page=500"
 			result_key = plural(label)
+		from requests import get
 		loaded_json = JSON.loads(
 			get(f"https://api.vultr.com/v2/{plural(label)}{suffix}", headers={
 				"Authorization": f"Bearer {PHD_TOKEN}",

@@ -1,5 +1,4 @@
 from typing import Dict, Type
-from redis import Redis
 from worker_actions import WorkerAction
 from user_actions import UserAction
 from constants import REDIS_WORK_QUEUES_DB
@@ -30,6 +29,7 @@ class Work(UserAction):
 		return []
 	
 	def execute(self) -> None:
+		from redis import Redis
 		r = Redis(db=REDIS_WORK_QUEUES_DB)
 		if self.options and PRE_PUSH_OPTION in self.options:
 			pre_push_value = self.options[PRE_PUSH_OPTION]

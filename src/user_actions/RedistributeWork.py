@@ -1,6 +1,5 @@
 from user_actions.UserAction import UserAction
 from typing import Any, Dict, List, Set, Tuple, Type
-from redis import Redis
 from util.redis import get_network
 from worker_actions import WorkerAction
 from user_actions import UserAction
@@ -33,6 +32,7 @@ class RedistributeWork(UserAction):
 		return []
 	
 	def execute(self) -> None:
+		from redis import Redis
 		worker_actions: Dict[str, Type[WorkerAction]] = {
 			T.queue_name(): T
 			for T in WorkerAction.__subclasses__()

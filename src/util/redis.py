@@ -1,7 +1,6 @@
 from typing import Iterable, Set
 from constants import REDIS_CLI_BINARY, REDIS_WORKER_NETWORK_DB
 from util.ssh_do import ssh_do
-from redis import Redis
 
 def extend_network(host: str, workers: Iterable[str], firewall: bool):
 	if firewall:
@@ -11,6 +10,7 @@ def extend_network(host: str, workers: Iterable[str], firewall: bool):
 			stdin=f"sadd network {' '.join(workers)}",
 		)
 	else:
+		from redis import Redis
 		Redis(
 			host=host,
 			db=REDIS_WORKER_NETWORK_DB,
@@ -25,6 +25,7 @@ def remove_from_network(host: str, workers: Iterable[str], firewall: bool):
 			stdin=f"srem network {' '.join(workers)}",
 		)
 	else:
+		from redis import Redis
 		Redis(
 			host=host,
 			db=REDIS_WORKER_NETWORK_DB,
@@ -40,6 +41,7 @@ def get_network(host: str = None, firewall = False) -> Set[str]:
 			stdout=True,
 		).stdout.read().decode().strip().split())
 	else:
+		from redis import Redis
 		return {
 			result.decode()
 			for result in Redis(
