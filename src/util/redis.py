@@ -1,3 +1,4 @@
+from time import sleep
 from typing import Iterable, Set
 from constants import REDIS_CLI_BINARY, REDIS_WORKER_NETWORK_DB
 from util.ssh_do import ssh_do
@@ -51,3 +52,16 @@ def get_network(host: str = None, firewall = False) -> Set[str]:
 				db=REDIS_WORKER_NETWORK_DB,
 			).smembers("network")
 		}
+
+def set_garage_id(id: str):
+	from redis import Redis
+	Redis(db=REDIS_WORKER_NETWORK_DB).set("garage-id", id)
+
+def await_garage_id(host: str = None) -> str:
+	from redis import Redis
+	garage_id = None
+	while not garage_id:
+		garage_id = Redis(host=host, db=REDIS_WORKER_NETWORK_DB).get("garage-id")
+		sleep(0.3)
+	
+	return garage_id

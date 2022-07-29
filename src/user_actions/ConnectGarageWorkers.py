@@ -1,16 +1,17 @@
 from typing import List
 from user_actions.UserAction import UserAction
 from constants import GARAGE_BINARY, GARAGE_PORT, GARAGE_S3_PORT
-from subprocess import call
+from subprocess import call, check_output
 from socket import socket, AF_INET, SOCK_STREAM
 import time
+from util.redis import await_garage_id, set_garage_id
 from util.ssh_do import ssh_do
 
 
 class ConnectGarageWorkers(UserAction):
 	@classmethod
 	def command(cls) -> str:
-		return "cgw"
+		return "cgws"
 
 	@classmethod
 	def description(cls):
@@ -60,14 +61,26 @@ class ConnectGarageWorkers(UserAction):
 							pass
 						if len(garage_active_on_ips) == 3:
 							break
+				while True:
+					try:
+						for port in (GARAGE_PORT, GARAGE_S3_PORT):
+							address = ("127.0.0.1", port)
+							s = socket(AF_INET, SOCK_STREAM)
+							s.connect(address)
+							s.shutdown(2)
+						break
+					except Exception:
+						pass
+						time.sleep(0.3)
+				set_garage_id(
+					check_output(
+						[GARAGE_BINARY, "node", "id", "-q"]
+					).strip().split('@')[0]
+				)
 		connected = False
 		for ip in garage_active_on_ips:
 			try:
-				garage_id = ssh_do(
-					ip,
-					f"{GARAGE_BINARY} node id -q",
-					stdout=True,
-				).stdout.read().decode().strip().split('@')[0]
+				garage_id = await_garage_id(ip)
 				if call([
 					GARAGE_BINARY,
 					"node",
