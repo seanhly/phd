@@ -2,7 +2,8 @@ from subprocess import Popen, call
 import sys
 from typing import Dict, List, Set, Optional, Type
 from abc import ABC, abstractclassmethod, abstractmethod
-from constants import EXECUTABLE, PHD_LABEL, REDIS_WORKER_NETWORK_DB
+from arguments.IPArgument import IPArgument
+from constants import EXECUTABLE
 from util.ssh_do import ssh_do
 from os import environ
 from arguments.Argument import Argument
@@ -20,6 +21,7 @@ class UserAction(ABC):
 
 	options: Dict[str, Optional[str]]
 	query: Optional[str]
+	ip_arguments: Set[IPArgument]
 
 	def __init__(self, arguments: Optional[List[Argument]] = None) -> None:
 		self._cached_indexed_obligatory_option_groups = None
@@ -31,6 +33,7 @@ class UserAction(ABC):
 		self.options = {}
 		self.query_parts = []
 		self.query = None
+		self.ip_arguments = set()
 		if arguments:
 			i = 0
 			while i < len(arguments):

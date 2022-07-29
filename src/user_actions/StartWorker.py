@@ -8,6 +8,7 @@ from constants import (
 	TMUX_BINARY
 )
 from subprocess import Popen, call
+from util.redis import get_public_ipv4
 from util.wait_then_clear import wait_then_clear
 from socket import socket, AF_INET, SOCK_STREAM
 import time
@@ -35,8 +36,7 @@ class StartWorker(UserAction):
 		return []
 	
 	def execute(self) -> None:
-		from requests import get
-		my_ip = get("http://ipv4.icanhazip.com").content.decode().strip()
+		my_ip = get_public_ipv4()
 		common_cockroach_args = ' '.join([
 			"--insecure",
 			f"--advertise-host={my_ip}"

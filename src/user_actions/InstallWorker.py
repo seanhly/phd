@@ -76,7 +76,10 @@ class InstallWorker(UserAction):
 					*pacman_dependencies
 				])
 			)
-		threads.append(Popen(["pip3", "install", "grobid-tei-xml"]))
+		pip3_packages = [
+			"minio", "grobid-tei-xml",
+		]
+		threads.append(Popen(["pip3", "install", *pip3_packages]))
 		if not exists(PHD_GIT_DIR):
 			threads.append(Popen([GIT_BINARY, "clone", GIT_SOURCE, PHD_GIT_DIR]))
 		# Wait for installations, firewall changes, git clone.

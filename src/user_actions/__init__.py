@@ -19,3 +19,4 @@ from user_actions.RunGlobally import RunGlobally
 from user_actions.InstallWorker import InstallWorker
 from user_actions.StartWorker import StartWorker
 from user_actions.ConnectGarageWorkers import ConnectGarageWorkers
+from user_actions.SetGarageLayout import SetGarageLayout
