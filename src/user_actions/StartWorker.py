@@ -35,7 +35,6 @@ class StartWorker(UserAction):
 		return []
 	
 	def execute(self) -> None:
-		threads: List[Popen] = []
 		from requests import get
 		my_ip = get("http://ipv4.icanhazip.com").content.decode().strip()
 		common_cockroach_args = ' '.join([
@@ -98,6 +97,7 @@ class StartWorker(UserAction):
 				cockroach_cmd
 			),
 		}
+		threads: List[Popen] = []
 		print("Running services in TMUX...")
 		for name, (cwd, cmd) in services.items():
 			if call([TMUX_BINARY, "has-session", "-t", name]) != 0:

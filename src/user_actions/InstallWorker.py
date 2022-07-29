@@ -78,7 +78,7 @@ class InstallWorker(UserAction):
 			)
 		threads.append(Popen(["pip3", "install", "grobid-tei-xml"]))
 		if not exists(PHD_GIT_DIR):
-			threads.append(Popen([GIT_BINARY, "clone", GIT_SOURCE]))
+			threads.append(Popen([GIT_BINARY, "clone", GIT_SOURCE, PHD_GIT_DIR]))
 		# Wait for installations, firewall changes, git clone.
 		wait_then_clear(threads)
 		services = ["nginx", "redis-server", "transmission-daemon"]
