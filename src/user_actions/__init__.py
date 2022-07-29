@@ -11,7 +11,6 @@ from user_actions.ListSSHKeys import ListSSHKeys
 from user_actions.Work import Work
 from user_actions.RedistributeWork import RedistributeWork
 from user_actions.UpdateAll import UpdateAll
-from user_actions.WorkerServer import WorkerServer
 from user_actions.DistributeSemanticScholarCorpus import DistributeSemanticScholarCorpus
 from user_actions.ControlPanel import ControlPanel
 from user_actions.Whitelist import Whitelist

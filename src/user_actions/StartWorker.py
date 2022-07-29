@@ -103,6 +103,4 @@ class StartWorker(UserAction):
 			if call([TMUX_BINARY, "has-session", "-t", name]) != 0:
 				threads.append(Popen([TMUX_BINARY, "new-session", "-d", "-s", name, cmd], cwd=cwd))
 		wait_then_clear(threads)
-		from user_actions.WorkerServer import WorkerServer
-		WorkerServer().start()
 		ConnectGarageWorkers().execute()

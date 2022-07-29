@@ -76,13 +76,6 @@ class UserAction(ABC):
 		return " ".join((first_part.title(), *the_rest))
 
 	@classmethod
-	def remote(cls, host: str):
-		from redis import Redis
-		connection = Redis(host=host, db=REDIS_WORKER_NETWORK_DB)
-		from user_actions.WorkerServer import WorkerServer
-		return connection.publish(WorkerServer.command(), cls.command())
-
-	@classmethod
 	def run_on_host(cls, host: str, **kwargs) -> Optional[Popen]:
 		return ssh_do(
 			host,
