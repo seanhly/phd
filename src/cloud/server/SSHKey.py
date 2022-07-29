@@ -2,6 +2,7 @@ from typing import Type
 from cloud.Vendor import Vendor
 from cloud.server.Entity import Entity
 
+
 class SSHKey(Entity):
 	id: str
 	date_created: int
@@ -11,7 +12,8 @@ class SSHKey(Entity):
 	def __init__(self, data, vendor: Type[Vendor]):
 		self.__dict__ = data
 		import dateparser
-		self.date_created = int(dateparser.parse(self.date_created).timestamp())
+		self.date_created = int(
+			dateparser.parse(str(self.date_created)).timestamp())
 		self.vendor = vendor
 
 	def __str__(self):

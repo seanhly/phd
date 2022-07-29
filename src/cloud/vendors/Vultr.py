@@ -15,6 +15,7 @@ from constants import PHD_TOKEN, PHD_LABEL
 def lowest_cost_per_disk(plan: Plan):
 	return (plan.disk * plan.disk_count) / plan.monthly_cost
 
+
 def os_family_name_then_version(os: OperatingSystem):
 	key = [os.family, *(os.name.split())]
 	if len(key) >= 3:
@@ -24,16 +25,18 @@ def os_family_name_then_version(os: OperatingSystem):
 			key.insert(2, 9e99)
 	return tuple(key)
 
+
 def plural(singular: str):
 	if len(singular) <= 2 and singular[-1] == "s":
 		return singular
 	return f"{singular}s"
 
+
 class Vultr(Vendor):
 	@classmethod
-	def get(cls, E: Type[Entity], label: str, id: str = None):
-		if id:
-			suffix = f"/{id}"
+	def get(cls, entity: Type[Entity], label: str, the_id: str = None):
+		if the_id:
+			suffix = f"/{the_id}"
 			result_key = label
 		else:
 			suffix = "?per_page=500"
@@ -42,13 +45,13 @@ class Vultr(Vendor):
 		loaded_json = JSON.loads(
 			get(f"https://api.vultr.com/v2/{plural(label)}{suffix}", headers={
 				"Authorization": f"Bearer {PHD_TOKEN}",
-			}).content
+			}).content.decode()
 		)
 		inner_json = loaded_json[result_key.replace("-", "_")]
-		if id:
-			return E(inner_json, cls)
+		if the_id:
+			return entity(inner_json, cls)
 		else:
-			return (E(i, cls) for i in inner_json)
+			return (entity(inner, cls) for inner in inner_json)
 
 	@classmethod
 	def list_regions(cls):
@@ -56,19 +59,19 @@ class Vultr(Vendor):
 
 	@classmethod
 	def list_plans(
-		cls,
-		min_ram = 0,
-		max_cost = 9e99,
-		sort_by = lowest_cost_per_disk,
-		region: Region = None
+			cls,
+			min_ram=0,
+			max_cost=9e99,
+			sort_by=lowest_cost_per_disk,
+			region: Region = None
 	):
 		plans = [
 			plan
 			for plan in cls.get(Plan, "plan")
 			if (
-				plan.monthly_cost <= max_cost
-				and plan.ram >= min_ram
-				and (not region or region.id in plan.locations)
+					plan.monthly_cost <= max_cost
+					and plan.ram >= min_ram
+					and (not region or region.id in plan.locations)
 			)
 		]
 		plans.sort(key=sort_by)
@@ -77,17 +80,19 @@ class Vultr(Vendor):
 
 	@classmethod
 	def list_operating_systems(
-		cls,
-		os_family: Optional[str] = None,
-		sort_by = os_family_name_then_version,
-		in_name: Set[str] = set(),
+			cls,
+			os_family: Optional[str] = None,
+			sort_by=os_family_name_then_version,
+			in_name: Set[str] = None,
 	):
+		if not in_name:
+			in_name = set()
 		operating_systems = [
 			os
 			for os in cls.get(OperatingSystem, "os")
 			if (
-				(not os_family or os.family == os_family)
-				and all(substr in os.name for substr in in_name)
+					(not os_family or os.family == os_family)
+					and all(substring in os.name for substring in in_name)
 			)
 		]
 		operating_systems.sort(key=sort_by)
@@ -112,12 +117,12 @@ class Vultr(Vendor):
 
 	@classmethod
 	def create_instance(
-		cls,
-		region: Region = None,
-		plan: Plan = None,
-		os: OperatingSystem = None,
-		sshkey: SSHKey = None,
-		**kwargs
+			cls,
+			region: Region = None,
+			plan: Plan = None,
+			os: OperatingSystem = None,
+			sshkey: SSHKey = None,
+			**kwargs
 	):
 		if not region:
 			from cloud.server.Regions import Regions

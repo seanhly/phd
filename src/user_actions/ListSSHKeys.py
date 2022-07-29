@@ -1,4 +1,3 @@
-
 from user_actions.UserAction import UserAction
 from cloud.vendors.Vultr import Vultr
 

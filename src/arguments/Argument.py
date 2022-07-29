@@ -1,4 +1,4 @@
-from abc import ABC, abstractclassmethod, abstractmethod
+from abc import ABC, abstractmethod
 from typing import List
 
 
@@ -12,10 +12,15 @@ class Argument(ABC):
 		self,
 		arguments: List["Argument"],
 		current_index: int,
-		action
+		action,
 	) -> int:
 		return current_index + 1
 
-	@abstractclassmethod
+	@classmethod
+	@abstractmethod
 	def fits(cls, s: str) -> bool:
 		return False
+
+	@abstractmethod
+	def __init__(self, text: str, action: str = None):
+		pass

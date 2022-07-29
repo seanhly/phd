@@ -8,7 +8,7 @@ from constants import (
 	TMUX_BINARY
 )
 from subprocess import Popen, call
-from util.redis import get_public_ipv4
+from util.redis_utils import get_public_ipv4
 from util.wait_then_clear import wait_then_clear
 from socket import socket, AF_INET, SOCK_STREAM
 import time
@@ -41,7 +41,7 @@ class StartWorker(UserAction):
 			"--insecure",
 			f"--advertise-host={my_ip}"
 		])
-		from util.redis import get_network
+		from util.redis_utils import get_network
 		the_network = get_network()
 		# If we have no neighbours, then we start CockroachDB as a single node.
 		# More nodes can join later.

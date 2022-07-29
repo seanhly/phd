@@ -1,6 +1,5 @@
 from typing import List, Type
 from cloud.Vendor import Vendor
-
 from cloud.server.Entity import Entity
 
 
@@ -20,4 +19,8 @@ class Plan(Entity):
 		self.vendor = vendor
 
 	def __str__(self) -> str:
-		return f"{self.ram} MB RAM, {self.vcpu_count} CPU, {self.disk_count} x {self.disk} GB DISK, €{self.monthly_cost} {self.type}"
+		return (
+			f"{self.ram} MB RAM, {self.vcpu_count} CPU,"
+			f"{self.disk_count} x {self.disk} GB DISK,"
+			f"€{self.monthly_cost} {self.type}"
+		)

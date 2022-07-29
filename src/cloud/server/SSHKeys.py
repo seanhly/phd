@@ -14,7 +14,7 @@ class SSHKeys:
 			with open(PHD_PUBLIC_RSA_KEY, "r") as f:
 				local_ssh = f.read().strip()
 			remote_ssh_key = None
-			remote_keys = Vultr.list_ssh_keys(**kwargs)
+			remote_keys = Vultr.list_ssh_keys()
 			i = 0
 			while i < len(remote_keys) and not remote_ssh_key:
 				ssh_key = remote_keys[i]

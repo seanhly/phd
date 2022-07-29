@@ -4,7 +4,7 @@ from constants import GARAGE_BINARY, GARAGE_PORT, GARAGE_S3_PORT
 from subprocess import call
 from socket import socket, AF_INET, SOCK_STREAM
 import time
-from util.redis import await_garage_id, set_garage_id
+from util.redis_utils import await_garage_id, set_garage_id
 
 
 class ConnectGarageWorkers(UserAction):
@@ -29,10 +29,10 @@ class ConnectGarageWorkers(UserAction):
 		return []
 	
 	def execute(self) -> None:
-		from util.redis import get_network
+		from util.redis_utils import get_network
 		the_network = get_network()
+		garage_active_on_ips: List[str] = []
 		if the_network:
-			garage_active_on_ips: List[str] = []
 			for ip in the_network:
 				try:
 					for port in (GARAGE_PORT, GARAGE_S3_PORT):
@@ -84,7 +84,7 @@ class ConnectGarageWorkers(UserAction):
 				]) == 0:
 					connected = True
 					break
-			except:
+			except Exception:
 				pass
 		if not connected:
-			raise "cannot connect"
+			raise Exception("cannot connect")

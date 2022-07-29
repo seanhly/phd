@@ -1,10 +1,8 @@
 from typing import Dict, Set
 from user_actions.UserAction import UserAction
-from cloud.server.Pool import Pool
 from cloud.vendors.Vultr import Vultr
 from constants import PHD_LABEL
 import random
-from worker_actions import WorkerAction
 
 from util.ssh_do import ssh_do
 random.seed(1)

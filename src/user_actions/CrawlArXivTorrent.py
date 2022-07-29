@@ -39,8 +39,11 @@ class CrawlArXivTorrent(UserAction):
 	
 	def execute(self) -> None:
 		if self.query:
-			id = self.query.strip()
-			torrent_url = f"https://archive.org/download/{id}/{id}_archive.torrent"
+			the_id = self.query.strip()
+			torrent_url = (
+				f"https://archive.org/download/{the_id}"
+				f"/{the_id}_archive.torrent"
+			)
 			print(torrent_url)
 			torrent_file_path = "torrent.torrent"
 			from requests import get
@@ -59,7 +62,7 @@ class CrawlArXivTorrent(UserAction):
 					stderr=subprocess.DEVNULL,
 				).decode()
 				header, *lines, summary = [
-					re.split("\s{2,}", line.strip(), 9)
+					re.split("\\s{2,}", line.strip(), 9)
 					for line in transmission_output.strip().split("\n")
 				]
 				indices = {
@@ -71,7 +74,7 @@ class CrawlArXivTorrent(UserAction):
 				in_progress = False
 				for line in lines:
 					transmission_name = line[indices[NAME]]
-					in_progress = transmission_name == id
+					in_progress = transmission_name == the_id
 					if in_progress:
 						transmission_id = int(line[indices[ID]])
 						percentage_str = line[indices[DONE]]
@@ -81,10 +84,21 @@ class CrawlArXivTorrent(UserAction):
 							percentage = 0
 						else:
 							percentage = float(percentage_str[:-1]) / 100
-						print(transmission_id, percentage, status, eta, transmission_name)
+						print(
+							transmission_id,
+							percentage,
+							status,
+							eta,
+							transmission_name,
+						)
 						if percentage == 1.0 and eta == "Done":
 							transmission_output = subprocess.check_output(
-								["/usr/bin/transmission-remote", "-t", str(transmission_id), "-r"],
+								[
+									"/usr/bin/transmission-remote",
+									"-t",
+									str(transmission_id),
+									"-r"
+								],
 								stderr=subprocess.DEVNULL,
 							).decode()
 							print(transmission_output)

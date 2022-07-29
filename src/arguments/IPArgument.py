@@ -5,7 +5,7 @@ import re
 class IPArgument(Argument):
 	ip: str
 
-	def __init__(self, ip: str, _ = None):
+	def __init__(self, ip: str, _=None):
 		# Trim off the leading double-hyphen.
 		self.ip = ip
 

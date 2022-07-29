@@ -2,10 +2,7 @@
 from user_actions import UserAction
 from parse_dynamic_argument import parse_dynamic_argument
 from typing import Optional, Type
-from urllib import request as request
 import sys
-
-WINDOW_TITLE = "Docmuch search…"
 
 action = sys.argv[1]
 args = sys.argv[2:]

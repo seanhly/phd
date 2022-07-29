@@ -153,7 +153,7 @@ class SemanticScholarArticle:
 			else None
 		)
 		self.sections = []
-		current_section: str = None
+		current_section: str = ""
 		for p in j["body_text"]:
 			section = p["section"]
 			if section == current_section:

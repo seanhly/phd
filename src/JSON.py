@@ -7,6 +7,7 @@ DUMP_ARGS = dict(
 	indent="\t",
 )
 
+
 class JSON:
 	@classmethod
 	def dumps(cls, obj: Any):

@@ -1,12 +1,13 @@
 import subprocess
 from typing import List, Optional
-from constants import PHD_PRIVATE_RSA_KEY, RSYNC_BINARY
+from constants import PHD_PRIVATE_RSA_KEY, RSYNC_BINARY, SSH_BINARY
 
 RSYNC_ARGS = (
 	RSYNC_BINARY,
 	"-Pav",
 	"-e",
-	f"/usr/bin/ssh -o  StrictHostKeyChecking=no -o PasswordAuthentication=no -i {PHD_PRIVATE_RSA_KEY}"
+	f"{SSH_BINARY} -o  StrictHostKeyChecking=no -o "
+	f"PasswordAuthentication=no -i {PHD_PRIVATE_RSA_KEY}"
 )
 
 

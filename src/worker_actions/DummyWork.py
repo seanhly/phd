@@ -4,8 +4,8 @@ from worker_actions.WorkerAction import WorkerAction
 class DummyWork(WorkerAction):
 	page: int
 
-	def __init__(self, input: bytes):
-		self.page = int(input.decode().strip())
+	def __init__(self, the_input: bytes):
+		self.page = int(the_input.decode().strip())
 
 	@classmethod
 	def queue_name(cls) -> str:

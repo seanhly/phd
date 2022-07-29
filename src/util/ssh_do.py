@@ -1,9 +1,9 @@
 import subprocess
 from typing import Iterable, List, Optional, Union
-from constants import PHD_PRIVATE_RSA_KEY
+from constants import PHD_PRIVATE_RSA_KEY, SSH_BINARY
 
 SSH_ARGS = (
-	"/usr/bin/ssh",
+	SSH_BINARY,
 	"-o",
 	"StrictHostKeyChecking=no",
 	"-o",

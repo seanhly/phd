@@ -1,18 +1,20 @@
-from abc import ABC, abstractclassmethod, abstractmethod
-from typing import Iterable, Tuple
+from abc import ABC, abstractmethod
+from typing import Iterable, Tuple, Optional
 
 
 class WorkerAction(ABC):
-	@abstractclassmethod
+	@classmethod
+	@abstractmethod
 	def queue_name(cls) -> str:
 		pass
 
 	@classmethod
 	def name(cls) -> str:
-		first_part, *the_rest = cls.command().split("-")
+		first_part, *the_rest = cls.queue_name().split("-")
 		return " ".join((first_part.title(), *the_rest))
 
-	@abstractclassmethod
+	@classmethod
+	@abstractmethod
 	def description(cls) -> str:
 		pass
 
@@ -25,6 +27,11 @@ class WorkerAction(ABC):
 	def to_string(cls) -> str:
 		return f"{cls.name()} ({cls.description()})"
 
-	@abstractclassmethod
+	@classmethod
+	@abstractmethod
 	def one_at_a_time(cls) -> bool:
+		pass
+
+	@abstractmethod
+	def __init__(self, the_input: Optional[bytes]):
 		pass

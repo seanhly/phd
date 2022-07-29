@@ -3,7 +3,7 @@ import sys
 from typing import Dict, List, Set, Optional, Type
 from abc import ABC, abstractclassmethod, abstractmethod
 from arguments.IPArgument import IPArgument
-from constants import EXECUTABLE
+from constants import EXECUTABLE, PHD_LABEL
 from util.ssh_do import ssh_do
 from os import environ
 from arguments.Argument import Argument

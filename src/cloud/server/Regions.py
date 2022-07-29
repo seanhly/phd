@@ -40,9 +40,9 @@ class Regions:
 		nearest_region = (None, 9e99)
 		from cloud.vendors.Vultr import Vultr
 		for region in Vultr.list_regions():
-			distance = Regions.distance(region)
-			if distance < nearest_region[1]:
-				nearest_region = (region, distance)
+			the_distance = Regions.distance(region)
+			if the_distance < nearest_region[1]:
+				nearest_region = (region, the_distance)
 		the_region = nearest_region[0]
 		with open(PHD_NEAREST_SERVER, "w") as f:
 			d = the_region.__dict__

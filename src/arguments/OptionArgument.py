@@ -5,7 +5,7 @@ import re
 class OptionArgument(Argument):
 	option: str
 
-	def __init__(self, option: str, _ = None):
+	def __init__(self, option: str, _=None):
 		# Trim off the leading double-hyphen.
 		self.option = option[2:]
 
@@ -22,7 +22,9 @@ class OptionArgument(Argument):
 		the_action: UserAction = action
 		current_index += 1
 		if self.option in the_action.disqualified_options:
-			the_action.conflicting_options[self.option] = the_action.indexed_blocking_options()[self.option]
+			the_action.conflicting_options[self.option] = (
+				the_action.indexed_blocking_options()[self.option]
+			)
 		if self.option not in the_action.recognised_options():
 			print(f"Unrecognised: {self.option}")
 			the_action.unrecognised_options.add(self.option)
@@ -52,4 +54,4 @@ class OptionArgument(Argument):
 			
 	@classmethod
 	def fits(cls, s: str) -> bool:
-		return re.fullmatch("--.*", s)
+		return bool(re.fullmatch("--.*", s))

@@ -44,13 +44,13 @@ class Work(UserAction):
 			if not queue or queue == T.queue_name() 
 		}
 		for work_queue in map(bytes.decode, work_queues):
-			TheWorkerAction = worker_actions.get(work_queue)
-			if TheWorkerAction:
-				if TheWorkerAction.one_at_a_time():
+			the_worker_action = worker_actions.get(work_queue)
+			if the_worker_action:
+				if the_worker_action.one_at_a_time():
 					work_order = r.spop(work_queue)
-					worker_action = TheWorkerAction(work_order)
+					worker_action = the_worker_action(work_order)
 				else:
-					worker_action = TheWorkerAction()
+					worker_action = the_worker_action(None)
 				# This is where the magic happens.
 				for NextWorkerAction, orders in worker_action.execute():
 					r.sadd(

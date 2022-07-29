@@ -10,6 +10,7 @@ from socket import socket, AF_INET, SOCK_STREAM
 from datetime import datetime
 from typing import List
 
+
 class CreateInstance(UserAction):
 	@classmethod
 	def command(cls) -> str:
@@ -30,30 +31,31 @@ class CreateInstance(UserAction):
 
 	def blocking_options(self):
 		return []
-	
+
 	def execute(self) -> None:
 		current_pool = Pool.load(Vultr)
 		count = int(self.query.strip()) if self.query else 1
-		previous_instance_ips = [i.main_ip for i in Vultr.list_instances(label=PHD_LABEL)]
 		new_instances: List[Instance] = []
 		for i in range(count):
 			new_instances.append(Vultr.create_instance(min_ram=2000))
 		start = datetime.now().timestamp()
 		incomplete_server = True
 		while incomplete_server:
-			print(f"\rAwaiting activation [{int(datetime.now().timestamp() - start)}s] ", end="")
+			print(
+				f"\rAwaiting activation [{int(datetime.now().timestamp() - start)}s] ",
+				end="")
 			incomplete_server = False
 			i = 0
 			while i < len(new_instances) and not incomplete_server:
 				instance_state = Vultr.get_instance(new_instances[i].id)
 				if (
-					not instance_state.main_ip
-					or instance_state.main_ip == "0.0.0.0"
-					or not instance_state.v6_main_ip
-					or instance_state.v6_main_ip == "::"
-					or not instance_state.internal_ip
-					or instance_state.internal_ip == "0.0.0.0"
-					or instance_state.status != "active"
+						not instance_state.main_ip
+						or instance_state.main_ip == "0.0.0.0"
+						or not instance_state.v6_main_ip
+						or instance_state.v6_main_ip == "::"
+						or not instance_state.internal_ip
+						or instance_state.internal_ip == "0.0.0.0"
+						or instance_state.status != "active"
 				):
 					incomplete_server = True
 				else:
@@ -65,7 +67,9 @@ class CreateInstance(UserAction):
 		start = datetime.now().timestamp()
 		ssh_closed = True
 		while ssh_closed:
-			print(f"\rAwaiting SSH access [{int(datetime.now().timestamp() - start)}s] ", end="")
+			print(
+				f"\rAwaiting SSH access [{int(datetime.now().timestamp() - start)}s] ",
+				end="")
 			ssh_closed = False
 			for new_ip in new_instance_ips:
 				try:

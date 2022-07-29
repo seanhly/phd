@@ -7,6 +7,7 @@ import random
 from worker_actions import WorkerAction
 
 from util.ssh_do import ssh_do
+
 random.seed(1)
 
 
@@ -30,7 +31,7 @@ class ControlPanel(UserAction):
 
 	def blocking_options(self):
 		return []
-	
+
 	def execute(self) -> None:
 		vendor = Vultr
 		instances = vendor.list_instances(label=PHD_LABEL)
@@ -59,7 +60,12 @@ class ControlPanel(UserAction):
 			i.main_ip for i in instances
 		)
 		colours = {
-			ip: "#" + ''.join([random.choice('0123456789abcdef') for j in range(6)])
+			ip: "#" + ''.join(
+				[
+					random.choice('0123456789abcdef')
+					for _ in range(6)
+				]
+			)
 			for ip in instance_ips
 		}
 		for ip in instance_ips:
@@ -82,11 +88,11 @@ class ControlPanel(UserAction):
 					"mget R2 R L L2",
 					stdout=True,
 				)
-					.stdout
-					.read()
-					.decode()
-					.strip()
-					.split()
+				.stdout
+				.read()
+				.decode()
+				.strip()
+				.split()
 			)
 			right_of[ip] = r
 			left_of[ip] = l
@@ -108,16 +114,16 @@ class ControlPanel(UserAction):
 		]
 		disk = {
 			ip: ssh_do(
-					ip,
-					"/usr/bin/df -B1 /",
-					stdout=True,
-				)
-					.stdout
-					.read()
-					.decode()
-					.strip()
-					.split("\n")[-1]
-					.split()[2:4]
+				ip,
+				"/usr/bin/df -B1 /",
+				stdout=True,
+			)
+				.stdout
+				.read()
+				.decode()
+				.strip()
+				.split("\n")[-1]
+				.split()[2:4]
 			for ip in instance_ips
 		}
 		queue_lengths = {
@@ -130,11 +136,11 @@ class ControlPanel(UserAction):
 						stdin=hlen_commands,
 						stdout=True,
 					)
-						.stdout
-						.read()
-						.decode()
-						.strip()
-						.split()
+					.stdout
+					.read()
+					.decode()
+					.strip()
+					.split()
 				)
 			)
 			for ip in instance_ips
@@ -178,8 +184,7 @@ class ControlPanel(UserAction):
 			print("<tr>")
 			print(f"<td>{q}</td>")
 			for ip in ordered_ips:
-				l = queue_lengths[ip][q]
-				print(f"<td>{l}</td>")
+				print(f"<td>{queue_lengths[ip][q]}</td>")
 			print("</tr>")
 		for index, name in {0: "Disk Used", 1: "Disk Available"}.items():
 			print("<tr>")

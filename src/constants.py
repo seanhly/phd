@@ -1,11 +1,15 @@
 from os.path import join, exists
 from os import environ, makedirs
 
-GITHUB_REPOSITORY = "seanhly/phd"
-GIT_SOURCE = f"https://github.com/{GITHUB_REPOSITORY}"
+GITHUB_REPO = "seanhly/phd"
+GROBID_REPO = "kermitt2/grobid"
+GITHUB_HOST = "https://github.com/"
+GARAGE_HOST = "https://garagehq.deuxfleurs.fr/"
+PHD_SOURCE = f"{GITHUB_HOST}{GITHUB_REPO}"
+GROBID_SOURCE = f"{GITHUB_HOST}{GROBID_REPO}"
 
 GROBID_VERSION = "0.7.1"
-GROBID_SOURCE = f"https://github.com/kermitt2/grobid/archive/refs/tags/{GROBID_VERSION}.zip"
+GROBID_SOURCE = f"{GROBID_SOURCE}/archive/refs/tags/{GROBID_VERSION}.zip"
 GROBID_DIR_NAME = f"grobid-{GROBID_VERSION}"
 WORKING_DIR = "/root"
 
@@ -34,16 +38,19 @@ REDIS_WORKER_NETWORK_DB = 0
 REDIS_WORK_QUEUES_DB = 1
 GIT_BINARY = "/usr/bin/git"
 INSTALL_SCRIPT = "install.sh"
-INSTALL_SCRIPT_URL = f"https://raw.githubusercontent.com/{GITHUB_REPOSITORY}/master/{INSTALL_SCRIPT}"
+INSTALL_SCRIPT_URL = f"https://raw.githubusercontent.com/{GITHUB_REPO}/master/{INSTALL_SCRIPT}"
 BOOTSTRAP_SCRIPT = f"sh -c \"$(wget {INSTALL_SCRIPT_URL} -O -)\""
 
-COCKROACH_INSTALL_URL = "https://binaries.cockroachdb.com/cockroach-v22.1.4.linux-amd64.tgz"
+COCKROACH_INSTALL_URL = (
+	"https://binaries.cockroachdb.com/cockroach-v22.1.4.linux-amd64.tgz"
+)
 COCKROACH_BINARY_NAME = "cockroach"
 COCKROACH_BINARY = join("/usr/local/bin", COCKROACH_BINARY_NAME)
 COCKROACH_PORT = 26257
 COCKROACH_WEB_PORT = 8080
-
-GARAGE_INSTALL_URL = "https://garagehq.deuxfleurs.fr/_releases/v0.7.2.1/x86_64-unknown-linux-musl/garage"
+GARAGE_INSTALL_URL = (
+	f"{GARAGE_HOST}_releases/v0.7.2.1/x86_64-unknown-linux-musl/garage"
+)
 GARAGE_BINARY_NAME = "garage"
 GARAGE_BINARY = join("/usr/local/bin", GARAGE_BINARY_NAME)
 GARAGE_PORT = 3901
@@ -59,6 +66,7 @@ PACMAN_BINARY = "/usr/bin/pacman"
 SYSTEMCTL_BINARY = "/usr/bin/systemctl"
 SERVICE_BINARY = "/usr/sbin/service"
 REDIS_CLI_BINARY = "/usr/bin/redis-cli"
+SSH_BINARY = "/usr/bin/ssh"
 
 SSH_CLIENT = environ.get("SSH_CLIENT", "127.0.0.1").strip().split()[0]
 

@@ -2,9 +2,10 @@ from typing import List
 from user_actions.UserAction import UserAction
 from time import sleep
 from constants import (
-	APT_GET_BINARY, COCKROACH_BINARY, COCKROACH_BINARY_NAME, COCKROACH_INSTALL_URL,
-	GARAGE_BINARY, GARAGE_INSTALL_URL, GIT_BINARY, GIT_SOURCE, GROBID_DIR_PATH,
-	GROBID_EXEC_PATH, GROBID_SOURCE, PACMAN_BINARY, PHD_ETC_DIR, PHD_GIT_DIR, RSYNC_BINARY,
+	APT_GET_BINARY, COCKROACH_BINARY, COCKROACH_BINARY_NAME,
+	COCKROACH_INSTALL_URL, GARAGE_BINARY, GARAGE_INSTALL_URL, GIT_BINARY,
+	PHD_SOURCE, GROBID_DIR_PATH, GROBID_EXEC_PATH, GROBID_SOURCE,
+	PACMAN_BINARY, PHD_ETC_DIR, PHD_GIT_DIR, RSYNC_BINARY,
 	SERVICE_BINARY, SSH_CLIENT, SYSTEMCTL_BINARY, TMP_DIR, UFW_BINARY,
 	WORKING_DIR
 )
@@ -40,10 +41,11 @@ class InstallWorker(UserAction):
 
 	def blocking_options(self):
 		return []
-	
-	def execute(self) -> None:
-		threads: List[Popen] = []
-		threads.append(Popen([UFW_BINARY, "allow", "from", SSH_CLIENT]))
+
+	def execute(self):
+		threads: List[Popen] = [
+			Popen([UFW_BINARY, "allow", "from", SSH_CLIENT])
+		]
 		if exists(APT_GET_BINARY):
 			deb_dependencies = [
 				"default-jre",
@@ -54,8 +56,11 @@ class InstallWorker(UserAction):
 				"python3-redis",
 				"python3-dateparser",
 			]
+
 			def deb_install() -> int:
-				return call([APT_GET_BINARY, "-y", "install", *deb_dependencies])
+				return call(
+					[APT_GET_BINARY, "-y", "install", *deb_dependencies])
+
 			while deb_install() != 0:
 				sleep(1)
 		elif exists(PACMAN_BINARY):
@@ -81,7 +86,8 @@ class InstallWorker(UserAction):
 		]
 		threads.append(Popen(["pip3", "install", *pip3_packages]))
 		if not exists(PHD_GIT_DIR):
-			threads.append(Popen([GIT_BINARY, "clone", GIT_SOURCE, PHD_GIT_DIR]))
+			threads.append(
+				Popen([GIT_BINARY, "clone", PHD_SOURCE, PHD_GIT_DIR]))
 		# Wait for installations, firewall changes, git clone.
 		wait_then_clear(threads)
 		services = ["nginx", "redis-server", "transmission-daemon"]
@@ -118,13 +124,17 @@ class InstallWorker(UserAction):
 					# The tar appears to contain a directory resembling the
 					# final part of the URL.
 					cockroach_extracted_dir_name = sub(
-						"(\.[a-zA-Z]+)+$",
+						"(\\.[a-zA-Z]+)+$",
 						"",
 						basename(COCKROACH_INSTALL_URL),
 					)
 					tar.extractall(TMP_DIR)
-			cockroach_extracted_dir_path = join(TMP_DIR, cockroach_extracted_dir_name)
-			cockroach_binary_src = join(cockroach_extracted_dir_path, COCKROACH_BINARY_NAME)
+			cockroach_extracted_dir_path = join(
+				TMP_DIR, cockroach_extracted_dir_name
+			)
+			cockroach_binary_src = join(
+				cockroach_extracted_dir_path, COCKROACH_BINARY_NAME
+			)
 			move(cockroach_binary_src, COCKROACH_BINARY)
 			rmtree(cockroach_extracted_dir_path)
 			chmod(COCKROACH_BINARY, 0o700)

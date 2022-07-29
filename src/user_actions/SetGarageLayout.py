@@ -1,8 +1,8 @@
 from user_actions.UserAction import UserAction
-from typing import Dict, List
+from typing import Dict, List, Iterable, Tuple
 from constants import GARAGE_BINARY, PHD_LABEL
 from subprocess import Popen, call, check_output
-from util.redis import get_region
+from util.redis_utils import get_region
 from util.wait_then_clear import wait_then_clear
 from re import fullmatch, search
 
@@ -14,7 +14,7 @@ class SetGarageLayout(UserAction):
 
 	@classmethod
 	def description(cls):
-		return "Set the disk and datacentre layout of Garage nodes."
+		return "Set the disk and datacenter layout of Garage nodes."
 
 	def recognised_options(self):
 		return set()
@@ -39,20 +39,24 @@ class SetGarageLayout(UserAction):
 			lines.append(line)
 		table = (enumerate(line.strip().split()) for line in lines)
 		print(table)
-		host_and_port_per_id: Dict[str, str] = dict([
-			(part for i, part in row if i in {0, 2})
+		src: Iterable[Tuple[str]] = [
+			tuple(part for i, part in row if i in {0, 2})
 			for row in table
-		])
+		]
+		src: Iterable[Tuple[str, str]]
+		host_and_port_per_id: Dict[str, str] = dict(src)
 		print(host_and_port_per_id)
 		threads: List[Popen] = []
 		for garage_id, host_and_port in host_and_port_per_id.items():
 			host, _ = host_and_port.rsplit(":", 1)
 			"""
 			Sometimes Garage likes to display ipv4 IPs as ipv6 ones.  We can fix
-			this, in order to play nicely with Redis.  Refis only appears to
+			this, in order to play nicely with Redis.  Redis only appears to
 			support ipv4.
 			"""
-			ipv6_ipv4_match = fullmatch("\[::ffff:([0-9]+(?:\.[0-9]+){3})\]", host)
+			ipv6_ipv4_match = fullmatch(
+				"\\[::ffff:([0-9]+(?:\\.[0-9]+){3})]", host,
+			)
 			if ipv6_ipv4_match:
 				host = ipv6_ipv4_match[1]
 			region = get_region(host)
