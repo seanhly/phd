@@ -40,7 +40,7 @@ class RedistributeWork(UserAction):
 		mac_id = getnode()
 		neighbourhood_work_queues: Dict[int, Redis] = {}
 		neighbourhood_lock_queues: Dict[int, Redis] = {}
-		neighbourhood = get_neighbourhood()
+		neighbourhood = get_network()
 		for relation, host in neighbourhood.items():
 			lock_queue = Redis(db=REDIS_WORKER_NETWORK_DB, host=host)
 			if lock_queue.set("lock", mac_id, ex=300, nx=True):
