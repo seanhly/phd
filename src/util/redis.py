@@ -1,6 +1,7 @@
+from subprocess import check_output
 from time import sleep
 from typing import Iterable, Set
-from constants import REDIS_CLI_BINARY, REDIS_WORKER_NETWORK_DB
+from constants import GARAGE_BINARY, REDIS_CLI_BINARY, REDIS_WORKER_NETWORK_DB
 from util.ssh_do import ssh_do
 
 def extend_network(host: str, workers: Iterable[str], firewall: bool):
@@ -53,15 +54,19 @@ def get_network(host: str = None, firewall = False) -> Set[str]:
 			).smembers("network")
 		}
 
-def set_garage_id(id: str):
+def set_garage_id():
+	output = check_output(
+		[GARAGE_BINARY, "node", "id", "-q"]
+	)
+	garage_id = output.decode().strip().split('@')[0]
 	from redis import Redis
-	Redis(db=REDIS_WORKER_NETWORK_DB).set("garage-id", id)
+	Redis(db=REDIS_WORKER_NETWORK_DB).set("garage-id", garage_id)
 
 def await_garage_id(host: str = None) -> str:
 	from redis import Redis
 	garage_id = None
 	while not garage_id:
-		garage_id = Redis(host=host, db=REDIS_WORKER_NETWORK_DB).get("garage-id")
+		garage_id = Redis(host=host, db=REDIS_WORKER_NETWORK_DB).get("garage-id").decode().strip()
 		sleep(0.3)
 	
 	return garage_id

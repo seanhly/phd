@@ -1,11 +1,10 @@
 from typing import List
 from user_actions.UserAction import UserAction
 from constants import GARAGE_BINARY, GARAGE_PORT, GARAGE_S3_PORT
-from subprocess import call, check_output
+from subprocess import call
 from socket import socket, AF_INET, SOCK_STREAM
 import time
 from util.redis import await_garage_id, set_garage_id
-from util.ssh_do import ssh_do
 
 
 class ConnectGarageWorkers(UserAction):
@@ -72,11 +71,7 @@ class ConnectGarageWorkers(UserAction):
 					except Exception:
 						pass
 						time.sleep(0.3)
-				set_garage_id(
-					check_output(
-						[GARAGE_BINARY, "node", "id", "-q"]
-					).strip().split('@')[0]
-				)
+		set_garage_id()
 		connected = False
 		for ip in garage_active_on_ips:
 			try:
