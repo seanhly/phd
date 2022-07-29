@@ -3,8 +3,9 @@ from typing import List
 from user_actions.UserAction import UserAction
 from cloud.server.Pool import Pool
 from cloud.vendors.Vultr import Vultr
-from constants import BOOTSTRAP_SCRIPT, PHD_LABEL
-from util.ssh_do import ssh_do
+from constants import EXECUTABLE, PHD_LABEL
+from util.scp import scp
+from util.wait_then_clear import wait_then_clear
 
 
 class UpdateAll(UserAction):
@@ -34,7 +35,5 @@ class UpdateAll(UserAction):
 		Pool.load(vendor).update(instances)
 		threads: List[Popen] = []
 		for i in instances:
-			print(i.main_ip)
-			ssh_do(i.main_ip, BOOTSTRAP_SCRIPT, threads)
-		for thread in threads:
-			thread.wait()
+			threads.append(scp(EXECUTABLE, i.main_ip, EXECUTABLE))
+		wait_then_clear(threads)
