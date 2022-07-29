@@ -3,8 +3,8 @@ from user_actions.UserAction import UserAction
 from time import sleep
 from constants import (
 	APT_GET_BINARY, COCKROACH_BINARY, COCKROACH_BINARY_NAME, COCKROACH_INSTALL_URL,
-	GARAGE_BINARY, GARAGE_INSTALL_URL, GROBID_DIR_PATH,
-	GROBID_EXEC_PATH, GROBID_SOURCE, PACMAN_BINARY, RSYNC_BINARY,
+	GARAGE_BINARY, GARAGE_INSTALL_URL, GIT_BINARY, GIT_SOURCE, GROBID_DIR_PATH,
+	GROBID_EXEC_PATH, GROBID_SOURCE, PACMAN_BINARY, PHD_ETC_DIR, PHD_GIT_DIR, RSYNC_BINARY,
 	SERVICE_BINARY, SSH_CLIENT, SYSTEMCTL_BINARY, TMP_DIR, UFW_BINARY,
 	WORKING_DIR
 )
@@ -77,15 +77,17 @@ class InstallWorker(UserAction):
 				])
 			)
 		threads.append(Popen(["pip3", "install", "grobid-tei-xml"]))
-		# Wait for installations, firewall changes.
+		if not exists(PHD_GIT_DIR):
+			threads.append(Popen([GIT_BINARY, "clone", GIT_SOURCE]))
+		# Wait for installations, firewall changes, git clone.
 		wait_then_clear(threads)
 		services = ["nginx", "redis-server", "transmission-daemon"]
 		for service in services:
 			threads.append(Popen([SYSTEMCTL_BINARY, "enable", service]))
-		threads.append(Popen([RSYNC_BINARY, "-a", "/phd/etc", "/"]))
+		threads.append(Popen([RSYNC_BINARY, "-a", PHD_ETC_DIR, "/"]))
 		# Wait for config writes and service enabling.
 		wait_then_clear(threads)
-		rmtree("/phd")
+		rmtree(PHD_GIT_DIR)
 		for service in services:
 			threads.append(Popen([SERVICE_BINARY, service, "restart"]))
 		# Wait for service restarts.
